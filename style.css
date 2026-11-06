@@ -1,0 +1,28 @@
+
+:root{--bg:#f4f5f9;--card:#fff;--tx:#1d2133;--mu:#6b7287;--ln:#e5e7ef;--ac:#5b6cff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1220;--card:#181c30;--tx:#eceefa;--mu:#9aa1bd;--ln:#262b47}}
+:root[data-theme=dark]{--bg:#0f1220;--card:#181c30;--tx:#eceefa;--mu:#9aa1bd;--ln:#262b47}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:76px}
+.w{max-width:760px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:18px;padding:14px;margin-bottom:12px;animation:f .25s}
+@keyframes f{from{opacity:0;transform:translateY(6px)}}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:0 0 10px}.mu{color:var(--mu);font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;margin-top:10px}.stats b{display:block;font-size:18px}
+.bar{height:9px;border-radius:9px;background:var(--ln);overflow:hidden}.bar i{display:block;height:100%;background:var(--c,var(--ac));border-radius:9px;transition:width .4s}
+button,select,input,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:8px 10px;max-width:100%}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border:0}button.d{background:#e5484d;color:#fff;border:0}
+.row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;border-left:5px solid var(--c,var(--ac));background:var(--bg);margin-bottom:8px}
+.row .m{flex:1;min-width:0}.row input[type=checkbox]{width:22px;height:22px;accent-color:var(--ac)}
+.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--ln);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));overflow-x:auto;z-index:5}
+nav button{flex:1;min-width:58px;border:0;background:none;font-size:11px;padding:4px}nav button b{display:block;font-size:19px}nav .on{color:var(--ac);font-weight:700}
+.g{display:grid;gap:8px}.g2{grid-template-columns:1fr 1fr}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal button{padding:5px 2px;font-size:11px;border-radius:10px;line-height:1.2}.cal b{font-size:14px;display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#222;color:#fff;padding:9px 16px;border-radius:12px;z-index:9;max-width:90%;font-size:14px}
+.toast.e{background:#e5484d}textarea{width:100%;min-height:90px;font:12px monospace}
+.nm{display:flex;justify-content:space-between;font-size:13px;margin:8px 0 3px}
+.auth-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 14px;background:var(--bg)}
+.auth-card{width:min(100%,390px);background:var(--card);border:1px solid var(--ln);border-radius:22px;padding:24px;box-shadow:0 16px 50px rgba(20,25,50,.08);text-align:center;animation:f .25s}
+.auth-icon{font-size:42px;margin-bottom:6px}.auth-card h1{font-size:24px}.auth-form{text-align:left;margin-top:20px}.auth-form label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.auth-form input{width:100%;min-height:44px}.pass-wrap{position:relative}.pass-wrap input{padding-right:68px}.showpass{position:absolute;right:5px;top:5px;border:0;background:transparent;color:var(--ac);padding:7px 9px}.auth-submit{width:100%;min-height:45px;margin-top:14px}.auth-submit:disabled{opacity:.65;cursor:wait}.auth-error{margin-top:12px;padding:10px;border-radius:12px;background:color-mix(in srgb,#e5484d 12%,transparent);color:#c92f36;font-size:13px}.auth-foot{margin-top:18px}.auth-loading{max-width:360px}.auth-loading .bar{margin-top:16px}
+@media(max-width:520px){.auth-card{padding:20px;border-radius:20px}}
