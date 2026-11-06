@@ -84,6 +84,10 @@ function App({user}){
  const boot=window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load();
  const[S,setS]=useState(boot);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
+ const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
+ useEffect(()=>{const snap=()=>{const t=rawToday();if(t!==lastSeen.current){lastSeen.current=t;setDay(Math.min(Math.max(t,0),ndRef.current-1))}};
+  const vis=()=>{if(!document.hidden)snap()};document.addEventListener('visibilitychange',vis);window.addEventListener('focus',snap);window.addEventListener('pageshow',snap);const id=setInterval(snap,30000);
+  return()=>{document.removeEventListener('visibilitychange',vis);window.removeEventListener('focus',snap);window.removeEventListener('pageshow',snap);clearInterval(id)}},[]);
  const[q,setQ]=useState('');const[fs,setFs]=useState('');const[fc,setFc]=useState('');const[fst,setFst]=useState('');const[fdt,setFdt]=useState('');
  const[ex,setEx]=useState(0);const[note,setNote]=useState('');const[xs,setXs]=useState(0);const[pl,setPl]=useState('');const[mv,setMv]=useState('');const[md,setMd]=useState(1);
  const[sess,setSess]=useState('');const[sx,setSx]=useState(null);const[smin,setSmin]=useState('');const[imp,setImp]=useState('');const[rst,setRst]=useState(false);
