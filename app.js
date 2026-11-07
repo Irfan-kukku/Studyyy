@@ -452,3 +452,13 @@ function App({user}){
 Object.keys(op).forEach(k=>{op[k]._spName=k});
 
 window.StudyPlannerApp=App;window.StudyPlannerInit=init;window.StudyPlannerLoad=load;
+
+// Inside your Style & Glass modal render code in app.js:
+const [logoStyle, setLogoStyle] = useState(() => localStorage.getItem('sp.logoStyle') || 'liquid');
+
+const changeLogoStyle = (style) => {
+  setLogoStyle(style);
+  localStorage.setItem('sp.logoStyle', style);
+  document.body.dataset.logoStyle = style;
+  toast('Logo style updated');
+};
