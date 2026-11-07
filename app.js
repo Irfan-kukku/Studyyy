@@ -1,14 +1,14 @@
 
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
 /*LOGIC*/
-const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const NV=V.length;
-const HUE=[200,260,25,150,45,120,330,290,5,175,225];
+const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
+const HUE=[200,260,25,150,45,120,330,290,5,175,225];const hue=s=>HUE[s]!==undefined?HUE[s]:(s*137)%360;
 const CH={};V.forEach((x,i)=>(CH[x[0]+'|'+x[1]]=CH[x[0]+'|'+x[1]]||[]).push(i));
 const PER=5;const SLOT=['4:00–5:30 PM','5:45–7:15 PM','7:30–9:00 PM','9:15–11:00 PM · Extra','12:00–1:00 AM'];const old2new=p=>Math.floor(p/4)*PER+(p%4===3?4:p%4);
 const START=new Date(2026,10,7);const ST=['Not Started','Completed','Revisit','Moved'];const W=['Completed','Revisit'];
 const KEY='studyplanner.v1';const KEY2='studyplanner.v2';
 const clone=o=>JSON.parse(JSON.stringify(o));
-const init=()=>({v:2,sched:(()=>{const a=Array(44*PER).fill(null);for(let i=0;i<NV;i++)a[old2new(i)]=i;return a})(),st:{},extras:[],log:[],sessions:[]});
+const init=()=>({v:2,sched:(()=>{const a=Array(44*PER).fill(null);for(let i=0;i<BASE_NV;i++)a[old2new(i)]=i;return a})(),st:{},extras:[],log:[],sessions:[]});
 const stat=(S,i)=>S.st[i]||'Not Started';const watched=(S,i)=>W.includes(stat(S,i));
 const chIds=i=>CH[V[i][0]+'|'+V[i][1]];const nm=i=>SUBJ[V[i][0]]+' · '+V[i][1]+' · V'+V[i][2];
 const dayOf=p=>Math.floor(p/PER);const dDate=d=>{const x=new Date(START);x.setDate(x.getDate()+d);return x};
@@ -21,7 +21,13 @@ const where=(S,i)=>{const p=pos(S,i);return p<0?'—':'Day '+(dayOf(p)+1)+' · '
 function reorder(T,i){const ids=chIds(i).filter(j=>T.st[j]!=='Completed'&&T.sched.includes(j));const sl=ids.map(j=>T.sched.indexOf(j)).sort((a,b)=>a-b);ids.forEach((j,k)=>T.sched[sl[k]]=j)}
 function place(T,i,after){let j=T.sched.findIndex((x,k)=>k>after&&x===null);if(j<0){j=T.sched.length;for(let n=0;n<PER;n++)T.sched.push(null)}T.sched[j]=i}
 const L=(T,m)=>T.log.unshift({t:Date.now(),m});
-function validate(S){if(!S||!Array.isArray(S.sched)||S.sched.length%PER||typeof S.st!=='object'||!Array.isArray(S.log)||!Array.isArray(S.extras))return'Unrecognised file';
+let curS=null;
+function applyCustom(S){curS=S;SUBJ.length=BASE_SUBJ;V.length=BASE_NV;Object.keys(CH).forEach(k=>delete CH[k]);
+ (Array.isArray(S.subj)?S.subj:[]).forEach(n=>SUBJ.push(String(n)));
+ (Array.isArray(S.custom)?S.custom:[]).forEach(c=>V.push([c.s,c.c,c.n]));
+ NV=V.length;V.forEach((x,i)=>(CH[x[0]+'|'+x[1]]=CH[x[0]+'|'+x[1]]||[]).push(i))}
+function validate(S){const prev=curS;if(S&&typeof S==='object')applyCustom(S);const r=validate0(S);if(r&&prev)applyCustom(prev);return r}
+function validate0(S){if(!S||!Array.isArray(S.sched)||S.sched.length%PER||typeof S.st!=='object'||!Array.isArray(S.log)||!Array.isArray(S.extras))return'Unrecognised file';
 const seen=new Set();for(const x of S.sched){if(x===null)continue;if(!Number.isInteger(x)||x<0||x>=NV||seen.has(x))return'Duplicate or invalid video in schedule';seen.add(x)}
 for(let i=0;i<NV;i++)if(!seen.has(i)&&S.st[i]!=='Completed')return'Video missing: '+nm(i);
 for(const k in CH){const p=CH[k].filter(j=>seen.has(j)&&S.st[j]!=='Completed').map(j=>S.sched.indexOf(j));if(p.some((x,n)=>n&&x<p[n-1]))return'Chapter order broken: '+k}return''}
@@ -47,13 +53,26 @@ move(S,i,day){if(stat(S,i)==='Completed'||pos(S,i)<0)return{err:'Only pending pl
 catchup(S,i,day){if(stat(S,i)==='Completed')return{err:'Already completed'};if(!earlierOK(S,i))return{err:'Finish the earlier videos of this chapter first'};
  const p=pos(S,i);const T=clone(S);if(p>=0)T.sched[p]=null;T.st[i]='Completed';(T.cu=T.cu||[]).push({i,day,t:Date.now()});
  L(T,'Catch-up (Day '+(day+1)+', evening): '+nm(i)+(p>=0?' — missed from Day '+(dayOf(p)+1):''));return{S:T,ok:'Caught up: '+nm(i)}},
+add(S,o){const clean=x=>String(x==null?'':x).replace(/\|/g,' ').replace(/\s+/g,' ').trim().slice(0,60);
+ applyCustom(S);const T=clone(S);T.subj=T.subj||[];T.custom=T.custom||[];
+ let s=+o.subj;if(s<0){const nn=clean(o.newSubj);if(!nn)return{err:'Enter a subject name'};const f=SUBJ.findIndex(x=>x.toLowerCase()===nn.toLowerCase());if(f>=0)s=f;else{T.subj.push(nn);s=BASE_SUBJ+T.subj.length-1}}
+ let ch=clean(o.ch==='__new'?o.newCh:o.ch);if(!ch)return{err:'Enter a chapter name'};
+ const ex=Object.keys(CH).find(k=>k.split('|')[0]==s&&k.split('|')[1].toLowerCase()===ch.toLowerCase());if(ex)ch=ex.split('|')[1];
+ const have=CH[s+'|'+ch]||[];const n=Math.max(1,Math.min(30,Math.floor(+o.count)||1));
+ const ids=[];for(let k=1;k<=n;k++){T.custom.push({s,c:ch,n:have.length+k});ids.push(BASE_NV+T.custom.length-1)}
+ applyCustom(T);
+ const lastPend=Math.max(-1,...have.filter(j=>T.st[j]!=='Completed').map(j=>T.sched.indexOf(j)));
+ let after=+o.day>0?(+o.day-1)*PER-1:T.sched.reduce((m,x,k)=>x!==null?k:m,-1);after=Math.max(after,lastPend);
+ ids.forEach(i=>{let j=after+1;for(;;j++){while(j>=T.sched.length)for(let q=0;q<PER;q++)T.sched.push(null);if(T.sched[j]===null&&j%PER!==3)break}T.sched[j]=i;after=j});
+ L(T,'Added '+n+' video'+(n>1?'s':'')+': '+SUBJ[s]+' · '+ch+' · V'+(have.length+1)+(n>1?'–V'+(have.length+n):'')+' → '+where(T,ids[0]));
+ return{S:T,ok:'Added '+n+' video'+(n>1?'s':'')+' — first on '+where(T,ids[0])}},
 session(S,txt,min){const T=clone(S);T.sessions.push({txt,min,t:Date.now()});L(T,'Extra study session: '+txt+(min?' ('+min+' min)':''));return{S:T,ok:'Session recorded'}}};
 /*ENDLOGIC*/
 const migrate=s=>{if(s&&s.v!==2&&Array.isArray(s.sched)&&s.sched.length%4===0){const a=Array(s.sched.length/4*PER).fill(null);s.sched.forEach((x,p)=>{a[old2new(p)]=x});s.sched=a;s.v=2}return s};
 const load=()=>{try{let s=JSON.parse(localStorage.getItem(KEY2)||localStorage.getItem(KEY));s=migrate(s);if(s&&!validate(s))return s}catch(e){}return init()};
 const localSave=S=>{try{localStorage.setItem(KEY2,JSON.stringify(S))}catch(e){}};
-const Chip=({s})=>h`<span class="chip" style=${{'--c':`hsl(${HUE[s]} 60% 55%)`}}>${SUBJ[s]}</span>`;
-const col=s=>`hsl(${HUE[s]} 60% 55%)`;
+const Chip=({s})=>h`<span class="chip" style=${{'--c':`hsl(${hue(s)} 60% 55%)`}}>${SUBJ[s]}</span>`;
+const col=s=>`hsl(${hue(s)} 60% 55%)`;
 const Bar=({p,c,label})=>h`<div><div class="nm"><span>${label}</span><span class="mu">${p}%</span></div><div class="bar" style=${{'--c':c}}><i style=${{width:p+'%'}}/></div></div>`;
 const cnt=(S,ids)=>ids.filter(i=>stat(S,i)==='Completed').length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
@@ -80,9 +99,53 @@ function PickRem({S,onPick}){
  return h`<div class="g"><select value=${sub} onChange=${e=>{setS(+e.target.value);setC(0);setV(0)}}>${subs.map(k=>h`<option value=${k} key=${k}>${SUBJ[k]}</option>`)}</select>
  <div class="g g2"><select value=${Math.min(c,chs.length-1)} onChange=${e=>{setC(+e.target.value);setV(0)}}>${chs.map((k,i)=>h`<option value=${i} key=${k}>${k.split('|')[1]}</option>`)}</select>
  <select value=${Math.min(v,ids.length-1)} onChange=${e=>setV(+e.target.value)}>${ids.map((j,i)=>h`<option value=${i} key=${j}>Video ${V[j][2]} (${stat(S,j)})</option>`)}</select></div></div>`}
+/* ---------- Add videos tab ---------- */
+function AddTab({S,act}){
+ const[s,setS]=useState(0);const[ns,setNs]=useState('');const[c,setC]=useState('');const[nc,setNc]=useState('');const[n,setN]=useState(1);const[d,setD]=useState(0);
+ const chs=s>=0?Object.keys(CH).filter(k=>k.split('|')[0]==s).map(k=>k.split('|')[1]):[];
+ const chv=chs.includes(c)?c:(c==='__new'||!chs.length?'__new':chs[0]);
+ const base=chv==='__new'||s<0?0:(CH[s+'|'+chv]||[]).length;const nd=lastDay(S);
+ const added=(S.custom||[]).map((_,k)=>BASE_NV+k).reverse().slice(0,25);
+ const go=()=>{if(act(op.add,{subj:s,newSubj:ns,ch:chv,newCh:nc,count:n,day:d})){setNc('');setNs('');setN(1)}};
+ return h`<div class="card"><h2>➕ Add new videos</h2><div class="g">
+  <label class="mu">Subject</label>
+  <select value=${s} onChange=${e=>{setS(+e.target.value);setC('')}}>${SUBJ.map((x,i)=>h`<option value=${i} key=${i}>${x}</option>`)}<option value=${-1}>➕ New subject…</option></select>
+  ${s<0&&h`<input placeholder="New subject name" value=${ns} onInput=${e=>setNs(e.target.value)}/>`}
+  <label class="mu">Chapter</label>
+  <select value=${chv} onChange=${e=>setC(e.target.value)}>${chs.map(x=>h`<option value=${x} key=${x}>${x}</option>`)}<option value="__new">➕ New chapter…</option></select>
+  ${chv==='__new'&&h`<input placeholder="New chapter name" value=${nc} onInput=${e=>setNc(e.target.value)}/>`}
+  <label class="mu">How many videos? (they'll be numbered V${base+1}${n>1?'–V'+(base+(+n||1)):''})</label>
+  <input type="number" min="1" max="30" value=${n} onInput=${e=>setN(e.target.value)}/>
+  <label class="mu">Schedule</label>
+  <select value=${d} onChange=${e=>setD(+e.target.value)}><option value=${0}>At the end of my plan</option>${Array.from({length:nd},(_,k)=>h`<option value=${k+1} key=${k}>Next free slot from Day ${k+1} · ${fd(k)}</option>`)}</select>
+  <button class="p" onClick=${go}>Add to planner</button></div></div>
+ <div class="card"><h2>Recently added</h2>${added.length?added.map(i=>h`<div class="row" key=${i} style=${{'--c':col(V[i][0])}}><div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${stat(S,i)==='Completed'?'Completed':where(S,i)}</div></div></div>`):h`<span class="mu">Nothing added yet.</span>`}</div>`}
+
+/* ---------- Reminders ---------- */
+const FKEY='sp.fired.v1';
+const SLOT_MIN=[960,1065,1170,1275,1440];
+const atTime=(d,hhmm)=>{const[a,b]=String(hhmm).split(':').map(Number);const t=new Date(dDate(d));t.setHours(a||0,b||0,0,0);return t.getTime()};
+function buildEvents(S,rt){
+ const ev=[];const nd=lastDay(S);
+ for(const d of [rt-1,rt]){if(d<0||d>=nd)continue;
+  for(let k=0;k<PER;k++){const i=S.sched[d*PER+k];if(i===null||i===undefined||stat(S,i)==='Completed')continue;
+   const t=new Date(dDate(d));t.setHours(0,SLOT_MIN[k],0,0);const st=t.getTime();
+   ev.push({key:'s|'+d+'|'+k+'|'+i,at:st,until:st+10*6e4,title:'📚 Time to study · Day '+(d+1),body:nm(i)+' · '+SLOT[k]})}}
+ return ev}
+async function showNote(title,body,tag){
+ const o={body,tag,icon:'icon-192.png',badge:'icon-192.png'};
+ try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg){await reg.showNotification(title,o);return true}}catch(e){}
+ try{new Notification(title,o);return true}catch(e){return false}}
+function tickReminders(S){
+ if(typeof Notification==='undefined'||Notification.permission!=='granted')return;
+ const now=Date.now();let fired=[];try{fired=JSON.parse(localStorage.getItem(FKEY)||'[]')}catch(e){}
+ let changed=false;
+ for(const e of buildEvents(S,rawToday())){if(now>=e.at&&now<=e.until&&!fired.includes(e.key)){fired.push(e.key);changed=true;showNote(e.title,e.body,e.key)}}
+ if(changed){try{localStorage.setItem(FKEY,JSON.stringify(fired.slice(-300)))}catch(e){}}}
+
 function App({user}){
  const boot=window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load();
- const[S,setS]=useState(boot);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
+ const[S,setS]=useState(boot);applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
  useEffect(()=>{const snap=()=>{const t=rawToday();if(t!==lastSeen.current){lastSeen.current=t;setDay(Math.min(Math.max(t,0),ndRef.current-1))}};
@@ -91,6 +154,11 @@ function App({user}){
  const[q,setQ]=useState('');const[fs,setFs]=useState('');const[fc,setFc]=useState('');const[fst,setFst]=useState('');const[fdt,setFdt]=useState('');
  const[ex,setEx]=useState(0);const[note,setNote]=useState('');const[xs,setXs]=useState(0);const[pl,setPl]=useState('');const[mv,setMv]=useState('');const[md,setMd]=useState(1);
  const[sess,setSess]=useState('');const[sx,setSx]=useState(null);const[smin,setSmin]=useState('');const[imp,setImp]=useState('');const[rst,setRst]=useState(false);
+ const live=React.useRef({});live.current={S};
+ useEffect(()=>{const ask=()=>{if(typeof Notification!=='undefined'&&Notification.permission==='default'){try{Notification.requestPermission()}catch(e){}}};ask();
+  document.addEventListener('pointerdown',ask,{once:true});
+  const t=()=>tickReminders(live.current.S);t();const vis=()=>{if(!document.hidden)t()};document.addEventListener('visibilitychange',vis);window.addEventListener('focus',t);const id=setInterval(t,15000);
+  return()=>{document.removeEventListener('pointerdown',ask);document.removeEventListener('visibilitychange',vis);window.removeEventListener('focus',t);clearInterval(id)}},[]);
  const syncReady=React.useRef(false);const remoteUpdate=React.useRef(false);
  useEffect(()=>{localSave(S);if(!syncReady.current){syncReady.current=true;return;}if(remoteUpdate.current){remoteUpdate.current=false;return;}window.SPFirebase?.savePlanner(S).catch(()=>{})},[S]);
  useEffect(()=>{let stop=window.SPFirebase?.subscribePlanner((remote)=>{if(remote&&validate(remote.state)===''){remoteUpdate.current=true;setS(remote.state);window.__SP_BOOT_STATE=remote.state}});return()=>{if(stop)stop()}},[]);
@@ -102,7 +170,7 @@ function App({user}){
  const pending=all.filter(i=>stat(S,i)!=='Completed'&&pos(S,i)>=0).sort((a,b)=>pos(S,a)-pos(S,b));
  const overdue=all.filter(i=>(stat(S,i)!=='Completed'&&pos(S,i)>=0&&dayOf(pos(S,i))<rt)||stat(S,i)==='Revisit');
  const missedFor=d=>all.filter(i=>stat(S,i)!=='Completed'&&((pos(S,i)>=0&&dayOf(pos(S,i))<d)||stat(S,i)==='Revisit')).sort((a,b)=>pos(S,a)-pos(S,b));
- const tabs=[['Today','🏠'],['Progress','📊'],['Calendar','📅'],['List','✅'],['Tools','🔀'],['Catch-up','🌙'],['Data','💾']];
+ const tabs=[['Today','🏠'],['Progress','📊'],['Calendar','📅'],['List','✅'],['Add','➕'],['Tools','🔀'],['Catch-up','🌙'],['Data','💾']];
  const day=Math.min(day0,nd-1);const dd=dDate(day);const isToday=day===rt;
  const lst=all.filter(i=>(!fs||V[i][0]==fs)&&(!fc||V[i][1]===fc)&&(!fst||stat(S,i)===fst)&&(!q||(nm(i)+where(S,i)).toLowerCase().includes(q.toLowerCase()))&&(!fdt||(pos(S,i)>=0&&dayOf(pos(S,i))===Math.round((new Date(fdt+'T00:00')-START)/864e5))));
  const exp=JSON.stringify(S);
@@ -152,6 +220,7 @@ function App({user}){
  <input type="number" style=${{width:'100%',marginTop:8}} placeholder="Minutes (optional)" value=${smin} onInput=${e=>setSmin(e.target.value)}/>
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>sx===null?toast('Nothing to record',1):act(op.extra,sx,smin?'Studied '+smin+' min':'')&&setSmin('')}>Mark as studied</button></div></div>`}
 
+ ${tab==='Add'&&h`<${AddTab} S=${S} act=${act}/>`}
  ${tab==='Data'&&h`<div class="card"><h2>Export / import (JSON)</h2><textarea readOnly value=${exp} onFocus=${e=>e.target.select()}/>
  <div style=${{margin:'8px 0'}}><button onClick=${()=>{try{navigator.clipboard.writeText(exp);toast('Copied')}catch(e){toast('Select the text and copy',1)}}}>Copy JSON</button></div>
  <textarea placeholder="Paste exported JSON here" value=${imp} onInput=${e=>setImp(e.target.value)}/>
