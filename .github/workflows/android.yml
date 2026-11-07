@@ -1,11 +1,14 @@
 
-name: Build Android APK
+name: Build Study Planner Android APK
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -24,23 +27,73 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Inspect project
+      - name: Prepare website files
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
-          echo "Repository files:"
-          ls -la
-          echo "Package files:"
-          find . -maxdepth 3 -name package.json -o -name capacitor.config.ts -o -name capacitor.config.json
+          mkdir -p www
+          cp index.html app.js main.js sync.js style.css www/
+          cp sw.js manifest.webmanifest www/
+          cp -R icons www/
 
-      - name: Stop if Android project is missing
+          node - <<'NODE'
+          const fs = require('fs');
+          const keys = [
+            'FIREBASE_API_KEY',
+            'FIREBASE_AUTH_DOMAIN',
+            'FIREBASE_PROJECT_ID',
+            'FIREBASE_STORAGE_BUCKET',
+            'FIREBASE_MESSAGING_SENDER_ID',
+            'FIREBASE_APP_ID'
+          ];
+          for (const key of keys) {
+            if (!process.env[key]) {
+              throw new Error('Missing GitHub Secret: ' + key);
+            }
+          }
+          const config = {
+            apiKey: process.env.FIREBASE_API_KEY,
+            authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: process.env.FIREBASE_APP_ID
+          };
+          fs.writeFileSync(
+            'www/firebase-config.js',
+            'const firebaseConfig = ' + JSON.stringify(config) + ';'
+          );
+          NODE
+
+      - name: Install Capacitor
         run: |
-          if [ ! -f android/gradlew ]; then
-            echo "::error::No Android Gradle project found. The project needs an Android wrapper before it can build."
-            exit 1
-          fi
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
 
-      - name: Build debug APK
+      - name: Configure Android app
+        run: |
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.irfankukku.studyplanner",
+            "appName": "Study Planner",
+            "webDir": "www"
+          }
+          EOF
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Sync Android project
+        run: npx cap sync android
+
+      - name: Build APK
         run: |
           cd android
           chmod +x gradlew
@@ -49,5 +102,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: StudyPlanner-Android-APK
+          name: Study-Planner-APK
           path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
