@@ -67,5 +67,3 @@ Profile helper:
 `users/{uid}/profile/main`
 
 The rules restrict these user documents to the authenticated owner.
-
- 

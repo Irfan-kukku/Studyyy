@@ -80,9 +80,55 @@ const Bar=({p,c,label})=>h`<div><div class="nm"><span>${label}</span><span class
 const cnt=(S,ids)=>ids.filter(i=>stat(S,i)==='Completed').length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const StSel=({S,i,act})=>h`<select value=${stat(S,i)} onChange=${e=>act(op.set,i,e.target.value)}>${ST.map(x=>h`<option key=${x}>${x}</option>`)}</select>`;
-const VRow=({S,i,act,time,today=false})=>h`<div class=${'row video-row'+(today?' today-video':'')} style=${{'--c':col(V[i][0])}}>
- <input type="checkbox" checked=${stat(S,i)==='Completed'} onChange=${e=>act(op.set,i,e.target.checked?'Completed':'Not Started')}/>
- <div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${time}</div></div><${StSel} S=${S} i=${i} act=${act}/></div>`;
+
+/* ---------- motion + hero helpers ---------- */
+function CountUp({to,dur=900,suffix=''}){const[v,setV]=useState(0);const from=React.useRef(0);
+ useEffect(()=>{const a=from.current,b=to;let raf,t0;let reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  if(a===b||reduce){setV(b);from.current=b;return}
+  const step=t=>{t0=t0||t;const p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);setV(Math.round(a+(b-a)*e));if(p<1)raf=requestAnimationFrame(step);else from.current=b};
+  raf=requestAnimationFrame(step);return()=>{cancelAnimationFrame(raf);from.current=b}},[to]);
+ return h`<span>${v}${suffix}</span>`}
+const streakOf=S=>{const days=new Set();(S.log||[]).forEach(l=>{if(/→ Completed|Extra video|Catch-up|Swap:|Extra study/.test(l.m))days.add(new Date(l.t).toDateString())});
+ let n=0;const d=new Date();if(!days.has(d.toDateString()))d.setDate(d.getDate()-1);while(days.has(d.toDateString())){n++;d.setDate(d.getDate()-1)}return n};
+const SLOT_LEN=[90,90,90,105,60];
+function nextSlot(S,rt,now){if(rt<0||rt>=lastDay(S))return null;
+ for(let k=0;k<PER;k++){const i=S.sched[rt*PER+k];if(i===null||i===undefined||stat(S,i)==='Completed')continue;
+  const t=new Date(dDate(rt));t.setHours(0,SLOT_MIN[k],0,0);const st=t.getTime(),en=st+SLOT_LEN[k]*6e4;
+  if(now<en)return{k,i,st,en,live:now>=st}}return null}
+const fmtIn=ms=>{const m=Math.max(1,Math.round(ms/6e4));return m>=60?Math.floor(m/60)+'h '+(m%60?m%60+'m':''):m+'m'};
+const GRADES=[['aurora','Midnight Aurora','#8b7bff','#2dd4bf'],['rose','Rosé Noir','#f2a7b8','#c9a46a'],['emerald','Emerald Reserve','#4fd9a0','#d9c27a'],['sapphire','Sapphire Sky','#4da3ff','#7ee0ff'],['gold','Classic Gold','#d4b575','#8a6a2c']];
+function Intro({onDone}){useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t)},[]);
+ return h`<div class="intro" onClick=${onDone} role="presentation"><div class="intro-bg"><i/><i/><i/></div>
+  <div class="intro-core"><div class="intro-orb"><svg class="intro-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5"/><path pathLength="1" class="p2" d="M9 8h7M9 12h5"/></svg></div>
+  <h1 class="intro-title">${'Study Planner'.split('').map((c,k)=>h`<span key=${k} style=${{'--d':(700+k*55)+'ms'}}>${c===' '?'\u00a0':c}</span>`)}</h1>
+  <p class="intro-tag">Plan · Focus · Progress</p><div class="intro-line"><i/></div></div><div class="intro-skip">Tap to skip</div></div>`}
+function Hero({S,rt,nd,done,NV,P,user,dark,onTheme,onStyle,onLogout}){
+ const[now,setNow]=useState(Date.now());useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),30000);return()=>clearInterval(id)},[]);
+ const hr=new Date(now).getHours();const greet=hr<5?'Late night focus':hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+ const st=streakOf(S);const nx=nextSlot(S,rt,now);const dayN=Math.min(Math.max(rt,0),nd-1)+1;
+ return h`<header class="hero"><div class="hero-bg" aria-hidden="true"><i/><i/><i/></div>
+  <div class="hero-top"><div><span class="hero-hello">${greet}</span>${user?.email?h`<div class="hero-mail">${user.email}</div>`:null}</div>
+   <div class="hero-btns"><button aria-label="Toggle theme" onClick=${onTheme}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button aria-label="Style" onClick=${onStyle}><${Icon} name="palette"/></button><button aria-label="Logout" onClick=${onLogout}><${Icon} name="logout"/></button></div></div>
+  <h1 class="hero-title"><span class="hero-mark"><${Icon} name="book" size=${22}/></span><span>Study <em>Planner</em></span></h1>
+  <div class="hero-sub">Day ${dayN} of ${nd} · ${NV} videos</div>
+  <div class="hero-grid"><div class="hero-ring" style=${{'--progress':P+'%'}}><b><${CountUp} to=${P} suffix="%"/></b></div>
+   <div class="hero-chips"><div class="hchip flame"><${Icon} name="flame" size=${17}/><span><b><${CountUp} to=${st}/></b> day streak</span></div>
+    <div class="hchip"><${Icon} name="check" size=${17}/><span><b><${CountUp} to=${done}/></b> / ${NV} done</span></div></div></div>
+  <div class=${'hero-next'+(nx&&nx.live?' live':'')}><${Icon} name="clock" size=${18}/>${nx?h`<div class="hn-t"><b>${nx.live?'Live now':'Next · '+SLOT[nx.k]}</b><span>${nm(nx.i)}</span></div><div class="hn-c">${nx.live?'ends in '+fmtIn(nx.en-now):'in '+fmtIn(nx.st-now)}</div>`:h`<div class="hn-t"><b>${rt<0?'Your plan starts 7 Nov':'All set for today'}</b><span>${rt<0?'Preview Day 1 below':'Nothing else scheduled'}</span></div>`}</div></header>`}
+
+
+function VRow({S,i,act,time,today=false}){const ref=React.useRef(null);const g=React.useRef(null);const done=stat(S,i)==='Completed';
+ const mv=(x,anim)=>{const n=ref.current;if(!n)return;n.style.transition=anim?'transform .4s cubic-bezier(.2,.9,.3,1.25)':'none';n.style.transform=x?'translateX('+x+'px)':'';if(n.parentNode)n.parentNode.style.setProperty('--sw',String(Math.min(1,x/96)))};
+ const ts=e=>{if(e.target.closest&&e.target.closest('select,input,button'))return;const t=e.touches[0];g.current={x:t.clientX,y:t.clientY,on:false,dead:false,dx:0}};
+ const tm=e=>{const s=g.current;if(!s||s.dead)return;const t=e.touches[0],dx=t.clientX-s.x,dy=t.clientY-s.y;
+  if(!s.on){if(Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){s.dead=true;return}if(dx>14&&dx>Math.abs(dy)*1.4){s.on=true;try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}}else return}
+  s.dx=Math.max(0,dx);mv(Math.min(150,s.dx*.8),false)};
+ const te=()=>{const s=g.current;g.current=null;if(!s||!s.on){return}window.__rowSwipeAt=Date.now();
+  if(s.dx*.8>=76){mv(0,true);try{navigator.vibrate&&navigator.vibrate([10,30,10])}catch(_){}act(op.set,i,done?'Not Started':'Completed')}else mv(0,true)};
+ return h`<div class="swrap" style=${{'--sw':0}}><div class=${'swbg'+(done?' undo':'')} aria-hidden="true"><${Icon} name=${done?'moon':'check'} size=${20}/><span>${done?'Mark not started':'Release to complete'}</span></div>
+ <div class=${'row video-row'+(today?' today-video':'')} ref=${ref} onTouchStart=${ts} onTouchMove=${tm} onTouchEnd=${te} onTouchCancel=${()=>{g.current=null;mv(0,true)}} style=${{'--c':col(V[i][0])}}>
+ <input type="checkbox" checked=${done} onChange=${e=>act(op.set,i,e.target.checked?'Completed':'Not Started')}/>
+ <div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${time}</div></div><${StSel} S=${S} i=${i} act=${act}/></div></div>`}
 function Pick({S,onPick,pending}){const[s,setS]=useState(0);const[c,setC]=useState(0);const[v,setV]=useState(0);
  const chs=Object.keys(CH).filter(k=>k.split('|')[0]==s);const ids=CH[chs[Math.min(c,chs.length-1)]];
  useEffect(()=>onPick(ids[Math.min(v,ids.length-1)]),[s,c,v]);
@@ -148,23 +194,45 @@ function tickReminders(S){
  if(changed){try{localStorage.setItem(FKEY,JSON.stringify(fired.slice(-300)))}catch(e){}}}
 
 
-function Icon({name,size=19}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7'};return h`<svg class="ui-icon" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
+function Icon({name,size=19}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7',flame:'M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.2.8 2 1.6 2.4C10.4 8 11 5.5 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.3-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z M7.5 11h.01M10 7.5h.01M14.5 7.5h.01',clock:'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',check:'M5 12.5l4.5 4.5L19 7'};return h`<svg class="ui-icon" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
 
 function SwipeNav({tabs,tab,go}){
-  const tr=React.useRef(null);const[ind,setInd]=useState({x:0,w:0,ok:false});const[edge,setEdge]=useState({l:false,r:true});
+  const tr=React.useRef(null);const indR=React.useRef(null);const[ind,setInd]=useState({x:0,w:0,ok:false});const[edge,setEdge]=useState({l:false,r:true});const[scrub,setScrub]=useState(false);
+  const goR=React.useRef(go);goR.current=go;const tabsR=React.useRef(tabs);tabsR.current=tabs;const sup=React.useRef(0);
   const upd=()=>{const n=tr.current;if(!n)return;setEdge({l:n.scrollLeft>6,r:n.scrollLeft+n.clientWidth<n.scrollWidth-6})};
   const place=(smooth)=>{const n=tr.current;if(!n)return;const b=n.querySelector('button.on');if(!b)return;
-    setInd({x:b.offsetLeft,w:b.offsetWidth,ok:true});
+    setInd({x:b.offsetLeft,w:b.offsetWidth,ok:true});if(indR.current){indR.current.style.transform='translateX('+b.offsetLeft+'px)';indR.current.style.width=b.offsetWidth+'px'}
     n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:smooth?'smooth':'auto'})};
   useEffect(()=>{place(ind.ok)},[tab]);
   useEffect(()=>{const r=()=>place(false);window.addEventListener('resize',r);upd();return()=>window.removeEventListener('resize',r)},[tab]);
-  return h`<nav class="dock" aria-label="Main navigation"><div class=${'dock-track'+(edge.l?' fade-l':'')+(edge.r?' fade-r':'')} ref=${tr} onScroll=${upd}>
-    <span class="dock-ind" aria-hidden="true" style=${{width:ind.w+'px',transform:'translateX('+ind.x+'px)',opacity:ind.ok?1:0}}/>
+  /* iPhone-style: press & drag the glass pill (or hold anywhere) and slide it across the bar; release to switch */
+  useEffect(()=>{const n=tr.current;if(!n)return;let sc=null;
+   const btns=()=>[...n.querySelectorAll('button')];
+   const idxAt=x=>{const r=n.getBoundingClientRect(),cx=x-r.left+n.scrollLeft;let best=0,bd=1e9;btns().forEach((b,k)=>{const d=Math.abs(b.offsetLeft+b.offsetWidth/2-cx);if(d<bd){bd=d;best=k}});return best};
+   const peek=k=>btns().forEach((b,j)=>b.classList.toggle('peek',j===k));
+   const begin=()=>{if(!sc)return;sc.on=true;sc.k=null;setScrub(true);try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}};
+   const start=e=>{const t=e.touches[0];sc={x:t.clientX,y:t.clientY,on:false,moved:false,k:null};
+     if(e.target.closest&&e.target.closest('button.on'))begin();else sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},230)};
+   const move=e=>{if(!sc)return;const t=e.touches[0];
+     if(!sc.on){if(Math.abs(t.clientX-sc.x)>8||Math.abs(t.clientY-sc.y)>8){sc.moved=true;clearTimeout(sc.hold)}return}
+     if(e.cancelable)e.preventDefault();
+     const bs=btns(),k=idxAt(t.clientX),b=bs[k];if(!b)return;
+     const r=n.getBoundingClientRect(),cx=t.clientX-r.left+n.scrollLeft,w=b.offsetWidth;
+     const x=Math.max(bs[0].offsetLeft,Math.min(bs[bs.length-1].offsetLeft+bs[bs.length-1].offsetWidth-w,cx-w/2));
+     if(indR.current){indR.current.style.transform='translateX('+x+'px)';indR.current.style.width=w+'px'}
+     if(k!==sc.k){sc.k=k;peek(k);try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}}
+     if(t.clientX-r.left<46)n.scrollLeft-=7;else if(r.right-t.clientX<46)n.scrollLeft+=7};
+   const end=()=>{if(!sc)return;clearTimeout(sc.hold);const was=sc.on,k=sc.k;sc=null;
+     if(was){setScrub(false);sup.current=Date.now();peek(-1);const tt=k===null?null:tabsR.current[k];if(tt)goR.current(tt[0]);setTimeout(()=>place(true),60)}};
+   n.addEventListener('touchstart',start,{passive:true});n.addEventListener('touchmove',move,{passive:false});n.addEventListener('touchend',end);n.addEventListener('touchcancel',end);
+   return()=>{n.removeEventListener('touchstart',start);n.removeEventListener('touchmove',move);n.removeEventListener('touchend',end);n.removeEventListener('touchcancel',end)}},[]);
+  return h`<nav class="dock" aria-label="Main navigation"><div class=${'dock-track'+(edge.l?' fade-l':'')+(edge.r?' fade-r':'')+(scrub?' scrub':'')} ref=${tr} onScroll=${upd} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
+    <span class="dock-ind" ref=${indR} aria-hidden="true" style=${{width:ind.w+'px',transform:'translateX('+ind.x+'px)',opacity:ind.ok?1:0}}/>
     ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${21}/></b><span>${t}</span></button>`)}
   </div></nav>`}
 
 function App({user}){
- const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
+ const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[grade,setGrade]=useState(()=>{try{return localStorage.getItem('sp.grade')||'aurora'}catch(e){return 'aurora'}});const[intro,setIntro]=useState(()=>{try{if(sessionStorage.getItem('sp.intro'))return false;sessionStorage.setItem('sp.intro','1')}catch(e){}try{return !matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return true}});const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
  useEffect(()=>{const snap=()=>{const t=rawToday();if(t!==lastSeen.current){lastSeen.current=t;setDay(Math.min(Math.max(t,0),ndRef.current-1))}};
@@ -181,7 +249,8 @@ function App({user}){
  const syncReady=React.useRef(false);const remoteUpdate=React.useRef(false);
  useEffect(()=>{localSave(S);if(!syncReady.current){syncReady.current=true;return;}if(remoteUpdate.current){remoteUpdate.current=false;return;}window.SPFirebase?.savePlanner(S).catch(()=>{})},[S]);
  useEffect(()=>{let stop=window.SPFirebase?.subscribePlanner((remote)=>{if(remote&&validate(remote.state)===''){remoteUpdate.current=true;setS(remote.state);window.__SP_BOOT_STATE=remote.state}});return()=>{if(stop)stop()}},[]);
- useEffect(()=>{if(dark){document.documentElement.dataset.theme=dark;try{localStorage.setItem('sp.theme',dark)}catch(e){}}},[dark]);
+ useEffect(()=>{const mq=matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.theme=dark||(mq.matches?'dark':'light')};apply();try{dark?localStorage.setItem('sp.theme',dark):localStorage.removeItem('sp.theme')}catch(e){}if(mq.addEventListener)mq.addEventListener('change',apply);return()=>{if(mq.removeEventListener)mq.removeEventListener('change',apply)}},[dark]);
+ useEffect(()=>{if(grade==='gold')delete document.documentElement.dataset.grade;else document.documentElement.dataset.grade=grade;try{localStorage.setItem('sp.grade',grade)}catch(e){}},[grade]);
  useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.30+(glassIntensity/100)*.38));document.documentElement.style.setProperty('--glass-saturation',(120+glassIntensity*.7)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.2)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
  useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
@@ -197,17 +266,16 @@ function App({user}){
  const tp=React.useRef(null);
  const swipe={start:e=>{const t=e.touches[0];tp.current=e.target.closest&&e.target.closest('input,textarea,select,.cal,[data-noswipe]')?null:{x:t.clientX,y:t.clientY,t:Date.now()}},
   end:e=>{const p=tp.current;tp.current=null;if(!p)return;const t=e.changedTouches[0],dx=t.clientX-p.x,dy=t.clientY-p.y;
-   if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.8&&Date.now()-p.t<700){const n=tabIdx+(dx<0?1:-1);if(n>=0&&n<tabs.length)goTab(tabs[n][0])}},
+   if(Date.now()-(window.__rowSwipeAt||0)<120)return;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.8&&Date.now()-p.t<700){const n=tabIdx+(dx<0?1:-1);if(n>=0&&n<tabs.length)goTab(tabs[n][0])}},
   cancel:()=>{tp.current=null}};
  const day=Math.min(day0,nd-1);const dd=dDate(day);const isToday=day===rt;
  const lst=all.filter(i=>(!fs||V[i][0]==fs)&&(!fc||V[i][1]===fc)&&(!fst||stat(S,i)===fst)&&(!q||(nm(i)+where(S,i)).toLowerCase().includes(q.toLowerCase()))&&(!fdt||(pos(S,i)>=0&&dayOf(pos(S,i))===Math.round((new Date(fdt+'T00:00')-START)/864e5))));
  const exp=JSON.stringify(S);
  return h`<div class="w">
- <div class="top"><div><h1 class="brand-title"><span class="brand-mark"><${Icon} name="book" size=${21}/></span>Study Planner</h1><div class="mu">Starts 7 Nov 2026 · ${nd} days · ${NV} videos</div><div class="mu">${user?.email||''}</div></div>
- <div style=${{display:'flex',gap:6}}><button onClick=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button onClick=${()=>setShowGlass(!showGlass)}><${Icon} name="spark"/> Glass</button><button onClick=${()=>window.SPFirebase?.signOut()}><${Icon} name="logout"/> Logout</button></div></div>
- ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Liquid Glass settings</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
+ <${Hero} S=${S} rt=${rt} nd=${nd} done=${done} NV=${NV} P=${P} user=${user} dark=${dark} onTheme=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')} onStyle=${()=>setShowGlass(!showGlass)} onLogout=${()=>window.SPFirebase?.signOut()}/>
+ ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Style & Glass</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Colour grade</label><div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
  <div class="card"><div class="bar"><i style=${{width:P+'%'}}/></div><div class="stats">
- <div><b>${NV}</b><span class="mu">Total</span></div><div><b>${done}</b><span class="mu">Done</span></div><div><b>${NV-done}</b><span class="mu">Left</span></div><div><b>${rev}</b><span class="mu">Revisit</span></div><div><b>${mvd}</b><span class="mu">Moved</span></div></div>
+ <div><b><${CountUp} to=${NV}/></b><span class="mu">Total</span></div><div><b><${CountUp} to=${done}/></b><span class="mu">Done</span></div><div><b><${CountUp} to=${NV-done}/></b><span class="mu">Left</span></div><div><b><${CountUp} to=${rev}/></b><span class="mu">Revisit</span></div><div><b><${CountUp} to=${mvd}/></b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
 
  <div class=${'page-view '+(dir||'')} key=${tab} onTouchStart=${swipe.start} onTouchEnd=${swipe.end} onTouchCancel=${swipe.cancel}>
@@ -261,7 +329,8 @@ function App({user}){
 
  ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed</b><span>Excellent progress. Keep going.</span></div>`}
  <${SwipeNav} tabs=${tabs} tab=${tab} go=${goTab}/>
- ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}</div>`}
+ ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}
+ ${intro&&h`<${Intro} onDone=${()=>setIntro(false)}/>`}</div>`}
 
 
 Object.keys(op).forEach(k=>{op[k]._spName=k});

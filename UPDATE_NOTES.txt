@@ -10,3 +10,11 @@ Important Firebase note
 - firebase-config.js is intentionally not included because this repository creates it during GitHub Actions deployment from repository secrets.
 - Keep your existing Firebase GitHub Actions secrets. Do not replace them with placeholder values.
 - The login and cloud sync need a deployed build with valid Firebase configuration.
+
+Premium update
+- iPhone-style dock: press and drag the glass pill (or press-and-hold anywhere on the bar), slide across the tabs, release to switch. Normal swipe still scrolls the bar.
+- New hero header with animated gradient, greeting, progress ring, day streak and live "next slot" countdown.
+- Swipe a video row to the right to complete it (swipe right on a completed row to undo).
+- Five colour grades (Style button in the header): Midnight Aurora (default), Rose Noir, Emerald Reserve, Sapphire Sky, Classic Gold. Each has dark and light versions.
+- Animated opening screen (once per app launch, tap to skip). Numbers count up.
+- Fixed: choosing "System" appearance now actually follows the phone's light/dark setting.
