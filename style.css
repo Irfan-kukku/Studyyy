@@ -491,3 +491,339 @@ nav.dock button.peek b{transform:translateY(-3px) scale(1.4)!important;color:var
 .intro-skip{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);opacity:0;animation:fade-up .6s ease 1.2s forwards}
 @keyframes intro-out{to{opacity:0;transform:scale(1.06);filter:blur(10px);visibility:hidden;pointer-events:none}}
 @media(prefers-reduced-motion:reduce){.hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *{animation:none!important}.hero-ring{transition:none}}
+/* ==========================================================================
+   TRUE LIQUID GLASS & CREATIVE PORTRAIT LOGO ENGINE
+   Fixes opaque overrides, restores slider control & adds 3D medallion animations
+   ========================================================================== */
+
+:root {
+  /* Dynamic alpha & blur driven directly by your Style & Glass slider */
+  --true-glass-alpha: calc(0.14 + (var(--glass-strength, 0.7) * 0.28));
+  --true-row-alpha: calc(0.10 + (var(--glass-strength, 0.7) * 0.22));
+  --true-dock-alpha: calc(0.28 + (var(--glass-strength, 0.7) * 0.25));
+}
+
+/* 1. Restore vibrant ambient light behind the glass so blur has rich contrast */
+body {
+  isolation: auto !important;
+}
+
+body:before {
+  opacity: 0.88 !important;
+  filter: saturate(1.45) blur(4px) !important;
+}
+
+/* Floating ambient light orbs behind cards */
+body:after {
+  opacity: 0.45 !important;
+  background:
+    radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--ac) 38%, transparent), transparent 34%),
+    radial-gradient(circle at 84% 52%, color-mix(in srgb, var(--ac2) 32%, transparent), transparent 36%),
+    radial-gradient(circle at 30% 82%, color-mix(in srgb, var(--ac) 28%, transparent), transparent 38%) !important;
+  mix-blend-mode: screen !important;
+  animation: aurora-drift 18s ease-in-out infinite alternate !important;
+}
+
+:root[data-theme=light] body:after {
+  mix-blend-mode: multiply !important;
+  opacity: 0.35 !important;
+}
+
+/* 2. True Translucent Frosted Glass Cards, Hero, Rows & Dock */
+html .card,
+html .auth-card {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--glass-strong) calc(var(--true-glass-alpha) * 100%), rgba(255, 255, 255, 0.08)),
+    color-mix(in srgb, var(--glass) calc(var(--true-glass-alpha) * 70%), transparent)
+  ) !important;
+  border: 1px solid color-mix(in srgb, var(--ac) 28%, rgba(255, 255, 255, 0.22)) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.26),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 22px)) saturate(var(--glass-saturation, 180%)) !important;
+  backdrop-filter: blur(var(--glass-blur, 22px)) saturate(var(--glass-saturation, 180%)) !important;
+  transform: translateZ(0);
+}
+
+html .hero {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ac) 18%, transparent),
+    color-mix(in srgb, var(--ac2) 10%, transparent) 65%,
+    rgba(255, 255, 255, 0.03)
+  ) !important;
+  border: 1px solid color-mix(in srgb, var(--ac) 36%, rgba(255, 255, 255, 0.25)) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.28),
+    0 0 36px color-mix(in srgb, var(--ac) 16%, transparent),
+    inset 0 1px 1px rgba(255, 255, 255, 0.32) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(var(--glass-saturation, 190%)) !important;
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(var(--glass-saturation, 190%)) !important;
+}
+
+html .row {
+  background: linear-gradient(
+    125deg,
+    color-mix(in srgb, var(--glass-strong) calc(var(--true-row-alpha) * 100%), rgba(255, 255, 255, 0.05)),
+    color-mix(in srgb, var(--glass) calc(var(--true-row-alpha) * 65%), transparent)
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-left: 4px solid var(--c, var(--ac)) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 22px) * 0.75)) saturate(165%) !important;
+  backdrop-filter: blur(calc(var(--glass-blur, 22px) * 0.75)) saturate(165%) !important;
+}
+
+html[data-theme] nav.dock {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--glass-strong) calc(var(--true-dock-alpha) * 100%), rgba(255, 255, 255, 0.08)),
+    color-mix(in srgb, var(--bg) calc(var(--true-dock-alpha) * 85%), transparent)
+  ) !important;
+  border: 1px solid color-mix(in srgb, var(--ac) 38%, rgba(255, 255, 255, 0.25)) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 22px) * 1.35)) saturate(210%) !important;
+  backdrop-filter: blur(calc(var(--glass-blur, 22px) * 1.35)) saturate(210%) !important;
+}
+
+/* Fix page-view transform locking backdrop-filter after animation finishes */
+.page-view.from-right,
+.page-view.from-left {
+  animation-fill-mode: backwards !important;
+}
+
+/* ==========================================================================
+   3. CREATIVE PORTRAIT LOGO ANIMATION (INTRO, HERO & AUTH)
+   ========================================================================== */
+
+.sp-logo-stage {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--logo-sz, 54px);
+  height: var(--logo-sz, 54px);
+  flex: 0 0 var(--logo-sz, 54px);
+  perspective: 700px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 2;
+}
+
+.sp-logo-stage.sz-intro {
+  --logo-sz: 136px;
+  margin-bottom: 8px;
+}
+
+.sp-logo-stage.sz-hero {
+  --logo-sz: 54px;
+}
+
+.sp-logo-stage.sz-auth {
+  --logo-sz: 88px;
+  margin: 0 auto 12px;
+}
+
+/* Spinning Conic Prism Halo */
+.sp-logo-halo {
+  position: absolute;
+  inset: -6%;
+  border-radius: 42% 58% 60% 40% / 45% 45% 55% 55%;
+  background: conic-gradient(
+    from 0deg,
+    var(--ac),
+    var(--ac2),
+    #ec4899,
+    #06b6d4,
+    var(--ac)
+  );
+  filter: blur(calc(var(--logo-sz) * 0.11));
+  opacity: 0.85;
+  animation:
+    sp-halo-spin 5.5s linear infinite,
+    sp-liquid-morph 7s ease-in-out infinite;
+  transition: filter 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* Counter-Rotating Dashed Star Orbit */
+.sp-logo-orbit {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--ac) 55%, rgba(255, 255, 255, 0.35));
+  animation: sp-halo-spin 11s linear infinite reverse;
+  pointer-events: none;
+}
+
+.sp-logo-orbit::before,
+.sp-logo-orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.sp-logo-orbit::before {
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  box-shadow: 0 0 12px 3px var(--ac), 0 0 22px 6px var(--ac2);
+}
+
+.sp-logo-orbit::after {
+  bottom: -3px;
+  left: 35%;
+  width: 5px;
+  height: 5px;
+  background: var(--ac2);
+  box-shadow: 0 0 10px 2px var(--ac2);
+}
+
+/* Pulsing Shockwave Ring (Intro & Hover) */
+.sp-logo-ripple {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--ac) 65%, #fff);
+  opacity: 0;
+  pointer-events: none;
+  animation: sp-ripple-out 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Liquid-Morphing Glass Portrait Frame */
+.sp-logo-medallion {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 42% 58% 60% 40% / 45% 45% 55% 55%;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  background: linear-gradient(135deg, var(--ac), var(--ac2));
+  box-shadow:
+    0 12px 30px color-mix(in srgb, var(--ac) 45%, rgba(0, 0, 0, 0.5)),
+    inset 0 0 18px rgba(255, 255, 255, 0.45);
+  animation:
+    sp-liquid-morph 7s ease-in-out infinite,
+    sp-medallion-float 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), border-color 0.3s ease;
+  z-index: 2;
+}
+
+.sp-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  transform: scale(1.08);
+  filter: contrast(1.05) saturate(1.08);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+}
+
+/* Holographic Glass Sheen Sweep */
+.sp-logo-sheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.55) 52%,
+    transparent 75%
+  );
+  transform: translateX(-140%) rotate(15deg);
+  animation: sp-sheen-sweep 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Interactive Hover & Tap Reactions */
+.sp-logo-stage:hover .sp-logo-medallion,
+.sp-logo-stage.burst .sp-logo-medallion {
+  transform: scale(1.12) rotateZ(-4deg);
+  border-color: #fff;
+}
+
+.sp-logo-stage:hover .sp-logo-img,
+.sp-logo-stage.burst .sp-logo-img {
+  transform: scale(1.2) rotateZ(4deg);
+  filter: contrast(1.1) saturate(1.18);
+}
+
+.sp-logo-stage:hover .sp-logo-halo,
+.sp-logo-stage.burst .sp-logo-halo {
+  opacity: 1;
+  filter: blur(calc(var(--logo-sz) * 0.16));
+  transform: scale(1.12);
+}
+
+.sp-logo-stage.burst {
+  animation: sp-jelly-pop 0.65s cubic-bezier(0.2, 1.6, 0.35, 1);
+}
+
+/* Intro Dramatic Entrance */
+.sz-intro .sp-logo-medallion {
+  animation:
+    sp-intro-portal 1.15s cubic-bezier(0.16, 1.35, 0.3, 1) both,
+    sp-liquid-morph 7s ease-in-out 1.15s infinite,
+    sp-medallion-float 4s ease-in-out 1.15s infinite;
+}
+
+@keyframes sp-intro-portal {
+  0% {
+    opacity: 0;
+    transform: scale(0.15) rotate(-140deg) translateY(40px);
+    filter: blur(18px) brightness(2.2);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.12) rotate(8deg) translateY(-6px);
+    filter: blur(0px) brightness(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) translateY(0);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+@keyframes sp-halo-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sp-liquid-morph {
+  0%, 100% { border-radius: 42% 58% 60% 40% / 45% 45% 55% 55%; }
+  25%      { border-radius: 58% 42% 45% 55% / 54% 38% 62% 46%; }
+  50%      { border-radius: 45% 55% 38% 62% / 38% 60% 40% 62%; }
+  75%      { border-radius: 60% 40% 55% 45% / 48% 55% 45% 52%; }
+}
+
+@keyframes sp-medallion-float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -4px; }
+}
+
+@keyframes sp-sheen-sweep {
+  0%, 55% { transform: translateX(-140%) rotate(15deg); }
+  85%, 100% { transform: translateX(140%) rotate(15deg); }
+}
+
+@keyframes sp-ripple-out {
+  0%   { opacity: 0.75; transform: scale(0.88); }
+  100% { opacity: 0; transform: scale(1.48); }
+}
+
+@keyframes sp-jelly-pop {
+  0%   { transform: scale(0.86); }
+  45%  { transform: scale(1.18) rotate(-5deg); }
+  75%  { transform: scale(0.96) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
