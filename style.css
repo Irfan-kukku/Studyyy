@@ -348,3 +348,38 @@ nav button.on{
 @supports not ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){nav{background:rgba(31,28,23,.94)!important}}
 @media(prefers-reduced-transparency:reduce){nav{background:var(--glass-strong)!important}}
 @media(prefers-reduced-motion:reduce){.video-row.today-video{transition:none!important}}
+
+/* ===== Instagram-style swipe dock + motion polish ===== */
+nav.dock{position:fixed!important;left:14px!important;right:14px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-width:520px;margin:0 auto;padding:0!important;overflow:hidden!important;display:block!important;border-radius:28px!important;min-height:0;animation:dock-rise .6s cubic-bezier(.2,.9,.25,1.15) both}
+nav.dock::before,nav.dock::after{display:none!important}
+.dock-track{position:relative;display:flex;gap:2px;overflow-x:auto;overflow-y:hidden;padding:8px 10px;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;cursor:grab}
+.dock-track::-webkit-scrollbar{display:none}
+.dock-track.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px);mask-image:linear-gradient(90deg,transparent 0,#000 26px)}
+.dock-track.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent 100%)}
+.dock-track.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)}
+.dock-ind{position:absolute;left:0;top:8px;bottom:8px;border-radius:20px;pointer-events:none;z-index:0;background:linear-gradient(145deg,color-mix(in srgb,var(--ac) 30%,transparent),color-mix(in srgb,var(--ac) 10%,transparent));border:1px solid color-mix(in srgb,var(--ac) 38%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 6px 18px color-mix(in srgb,var(--ac) 22%,transparent);transition:transform .45s cubic-bezier(.3,1.25,.4,1),width .35s cubic-bezier(.3,1.1,.4,1),opacity .2s}
+nav.dock button{position:relative;z-index:1;scroll-snap-align:center;flex:0 0 auto!important;min-width:66px!important;max-width:none!important;padding:7px 10px!important;border:0!important;background:transparent!important;box-shadow:none!important;transform:none!important;border-radius:20px!important;display:flex!important;flex-direction:column;align-items:center;gap:3px!important;color:var(--mu)!important;font-size:10.5px!important;transition:color .25s,transform .18s!important;-webkit-user-select:none;user-select:none}
+nav.dock button.on{color:var(--tx)!important;background:transparent!important;border:0!important;box-shadow:none!important}
+nav.dock button b{transition:transform .4s cubic-bezier(.3,1.6,.4,1)!important;animation:none!important;filter:none!important}
+nav.dock button.on b{transform:translateY(-1px) scale(1.18)!important;color:var(--ac)}
+nav.dock button.on b svg{filter:drop-shadow(0 2px 6px color-mix(in srgb,var(--ac) 55%,transparent))}
+nav.dock button:active{transform:scale(.88)!important}
+@keyframes dock-rise{0%{opacity:0;transform:translateY(40px) scale(.94)}100%{opacity:1;transform:none}}
+
+/* Page transitions follow the swipe direction */
+.page-view{animation:none}
+.page-view.from-right{animation:pg-right .42s cubic-bezier(.2,.85,.25,1) both}
+.page-view.from-left{animation:pg-left .42s cubic-bezier(.2,.85,.25,1) both}
+@keyframes pg-right{from{opacity:0;transform:translateX(38px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pg-left{from{opacity:0;transform:translateX(-38px) scale(.985)}to{opacity:1;transform:none}}
+.page-view .card,.page-view .row{animation:rise-in .5s cubic-bezier(.2,.85,.25,1) both}
+.page-view .card:nth-child(2){animation-delay:.05s}.page-view .card:nth-child(3){animation-delay:.1s}.page-view .card:nth-child(4){animation-delay:.15s}
+.page-view .row:nth-child(2){animation-delay:.04s}.page-view .row:nth-child(3){animation-delay:.08s}.page-view .row:nth-child(4){animation-delay:.12s}.page-view .row:nth-child(5){animation-delay:.16s}.page-view .row:nth-child(n+6){animation-delay:.2s}
+@keyframes rise-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* Tactile feedback */
+button:not(.dock button){transition:transform .15s cubic-bezier(.3,1.5,.5,1),filter .2s}
+button.p:active,button.d:active{transform:scale(.94)}
+.bar i{background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);background-size:200% 100%;animation:bar-shine 2.8s ease-in-out infinite}
+@keyframes bar-shine{from{background-position:200% 0}to{background-position:-100% 0}}
+@media(prefers-reduced-motion:reduce){nav.dock,.dock-ind,.page-view,.page-view .card,.page-view .row,.bar i{animation:none!important;transition:none!important}}
+@media(prefers-reduced-transparency:reduce){nav.dock{background:var(--glass-strong)!important}}

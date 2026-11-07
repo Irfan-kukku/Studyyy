@@ -150,6 +150,19 @@ function tickReminders(S){
 
 function Icon({name,size=19}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7'};return h`<svg class="ui-icon" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
 
+function SwipeNav({tabs,tab,go}){
+  const tr=React.useRef(null);const[ind,setInd]=useState({x:0,w:0,ok:false});const[edge,setEdge]=useState({l:false,r:true});
+  const upd=()=>{const n=tr.current;if(!n)return;setEdge({l:n.scrollLeft>6,r:n.scrollLeft+n.clientWidth<n.scrollWidth-6})};
+  const place=(smooth)=>{const n=tr.current;if(!n)return;const b=n.querySelector('button.on');if(!b)return;
+    setInd({x:b.offsetLeft,w:b.offsetWidth,ok:true});
+    n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:smooth?'smooth':'auto'})};
+  useEffect(()=>{place(ind.ok)},[tab]);
+  useEffect(()=>{const r=()=>place(false);window.addEventListener('resize',r);upd();return()=>window.removeEventListener('resize',r)},[tab]);
+  return h`<nav class="dock" aria-label="Main navigation"><div class=${'dock-track'+(edge.l?' fade-l':'')+(edge.r?' fade-r':'')} ref=${tr} onScroll=${upd}>
+    <span class="dock-ind" aria-hidden="true" style=${{width:ind.w+'px',transform:'translateX('+ind.x+'px)',opacity:ind.ok?1:0}}/>
+    ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${21}/></b><span>${t}</span></button>`)}
+  </div></nav>`}
+
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
@@ -179,6 +192,13 @@ function App({user}){
  const overdue=all.filter(i=>(stat(S,i)!=='Completed'&&pos(S,i)>=0&&dayOf(pos(S,i))<rt)||stat(S,i)==='Revisit');
  const missedFor=d=>all.filter(i=>stat(S,i)!=='Completed'&&((pos(S,i)>=0&&dayOf(pos(S,i))<d)||stat(S,i)==='Revisit')).sort((a,b)=>pos(S,a)-pos(S,b));
  const tabs=[['Today','home'],['Progress','chart'],['Calendar','calendar'],['List','list'],['Add','plus'],['Tools','shuffle'],['Catch-up','moon'],['Data','database']];
+ const[dir,setDir]=useState('');const tabIdx=tabs.findIndex(x=>x[0]===tab);
+ const goTab=t=>{if(t===tab)return;const a=tabs.findIndex(x=>x[0]===t);setDir(a>tabIdx?'from-right':'from-left');try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}setTab(t);window.scrollTo({top:0,behavior:'smooth'})};
+ const tp=React.useRef(null);
+ const swipe={start:e=>{const t=e.touches[0];tp.current=e.target.closest&&e.target.closest('input,textarea,select,.cal,[data-noswipe]')?null:{x:t.clientX,y:t.clientY,t:Date.now()}},
+  end:e=>{const p=tp.current;tp.current=null;if(!p)return;const t=e.changedTouches[0],dx=t.clientX-p.x,dy=t.clientY-p.y;
+   if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.8&&Date.now()-p.t<700){const n=tabIdx+(dx<0?1:-1);if(n>=0&&n<tabs.length)goTab(tabs[n][0])}},
+  cancel:()=>{tp.current=null}};
  const day=Math.min(day0,nd-1);const dd=dDate(day);const isToday=day===rt;
  const lst=all.filter(i=>(!fs||V[i][0]==fs)&&(!fc||V[i][1]===fc)&&(!fst||stat(S,i)===fst)&&(!q||(nm(i)+where(S,i)).toLowerCase().includes(q.toLowerCase()))&&(!fdt||(pos(S,i)>=0&&dayOf(pos(S,i))===Math.round((new Date(fdt+'T00:00')-START)/864e5))));
  const exp=JSON.stringify(S);
@@ -190,6 +210,7 @@ function App({user}){
  <div><b>${NV}</b><span class="mu">Total</span></div><div><b>${done}</b><span class="mu">Done</span></div><div><b>${NV-done}</b><span class="mu">Left</span></div><div><b>${rev}</b><span class="mu">Revisit</span></div><div><b>${mvd}</b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
 
+ <div class=${'page-view '+(dir||'')} key=${tab} onTouchStart=${swipe.start} onTouchEnd=${swipe.end} onTouchCancel=${swipe.cancel}>
  ${tab==='Today'&&h`<div class="card"><div class="top" style=${{margin:0}}><button onClick=${()=>setDay(Math.max(0,day-1))}>‹</button>
  <div style=${{textAlign:'center'}}><h2 style=${{margin:0}}>Day ${day+1} ${isToday?'· Today':''}</h2><div class="mu">${dd.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>
  <button onClick=${()=>setDay(Math.min(nd-1,day+1))}>›</button></div>
@@ -206,7 +227,7 @@ function App({user}){
  ${tab==='Calendar'&&h`<div class="card"><h2>Calendar</h2><div class="cal">${['M','T','W','T','F','S','S'].map((x,i)=>h`<div class="mu" key=${i} style=${{textAlign:'center'}}>${x}</div>`)}
  ${Array.from({length:(START.getDay()+6)%7},(_,i)=>h`<div key=${'b'+i}/>`)}
  ${Array.from({length:nd},(_,d)=>{const ids=S.sched.slice(d*PER,d*PER+PER).filter(x=>x!==null);const n=ids.filter(i=>stat(S,i)==='Completed').length;
-  return h`<button key=${d} onClick=${()=>{setDay(d);setTab('Today')}} style=${{background:n&&n===ids.length?'color-mix(in srgb,#2fb16b 35%,transparent)':'',outline:d===rt?'2px solid var(--ac)':''}}><b>${dDate(d).getDate()}</b>${dDate(d).toLocaleDateString(undefined,{month:'short'})}<br/>${n}/${ids.length}</button>`})}</div></div>`}
+  return h`<button key=${d} onClick=${()=>{setDay(d);goTab('Today')}} style=${{background:n&&n===ids.length?'color-mix(in srgb,#2fb16b 35%,transparent)':'',outline:d===rt?'2px solid var(--ac)':''}}><b>${dDate(d).getDate()}</b>${dDate(d).toLocaleDateString(undefined,{month:'short'})}<br/>${n}/${ids.length}</button>`})}</div></div>`}
 
  ${tab==='List'&&h`<div class="card"><div class="g"><input placeholder="Search videos" value=${q} onInput=${e=>setQ(e.target.value)}/>
  <div class="g g2"><select value=${fs} onChange=${e=>{setFs(e.target.value);setFc('')}}><option value="">All subjects</option>${SUBJ.map((x,i)=>h`<option value=${i} key=${i}>${x}</option>`)}</select>
@@ -236,9 +257,10 @@ function App({user}){
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>{try{const j=migrate(JSON.parse(imp)),er=validate(j);if(er)toast(er,1);else{setS(j);window.SPFirebase?.writeSnapshot(j).catch(()=>{});setImp('');toast('Imported')}}catch(e){toast('Invalid JSON',1)}}}>Import</button></div></div>
  <div class="card"><h2>Reset</h2>${rst?h`<p>Erase all progress and restore the original timetable?</p><button class="d" onClick=${()=>{setS(init());window.SPFirebase?.writeSnapshot(init()).catch(()=>{});setRst(false);toast('Reset done')}}>Yes, reset</button> <button onClick=${()=>setRst(false)}>Cancel</button>`:h`<button class="d" onClick=${()=>setRst(true)}>Reset everything</button>`}</div>
  <div class="card"><h2>Change log</h2>${S.log.length?S.log.slice(0,80).map((l,k)=>h`<div key=${k} class="mu" style=${{padding:'4px 0',borderBottom:'1px solid var(--ln)'}}>${new Date(l.t).toLocaleString()} — ${l.m}</div>`):h`<span class="mu">No changes yet.</span>`}</div>`}
+ </div>
 
  ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed</b><span>Excellent progress. Keep going.</span></div>`}
- <nav>${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} onClick=${()=>setTab(t)}><b><${Icon} name=${ic} size=${20}/></b>${t}</button>`)}</nav>
+ <${SwipeNav} tabs=${tabs} tab=${tab} go=${goTab}/>
  ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}</div>`}
 
 
