@@ -1,0 +1,53 @@
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Inspect project
+        run: |
+          echo "Repository files:"
+          ls -la
+          echo "Package files:"
+          find . -maxdepth 3 -name package.json -o -name capacitor.config.ts -o -name capacitor.config.json
+
+      - name: Stop if Android project is missing
+        run: |
+          if [ ! -f android/gradlew ]; then
+            echo "::error::No Android Gradle project found. The project needs an Android wrapper before it can build."
+            exit 1
+          fi
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyPlanner-Android-APK
+          path: android/app/build/outputs/apk/debug/*.apk
