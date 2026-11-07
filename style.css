@@ -26,3 +26,79 @@ nav button{flex:1;min-width:58px;border:0;background:none;font-size:11px;padding
 .auth-card{width:min(100%,390px);background:var(--card);border:1px solid var(--ln);border-radius:22px;padding:24px;box-shadow:0 16px 50px rgba(20,25,50,.08);text-align:center;animation:f .25s}
 .auth-icon{font-size:42px;margin-bottom:6px}.auth-card h1{font-size:24px}.auth-form{text-align:left;margin-top:20px}.auth-form label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.auth-form input{width:100%;min-height:44px}.pass-wrap{position:relative}.pass-wrap input{padding-right:68px}.showpass{position:absolute;right:5px;top:5px;border:0;background:transparent;color:var(--ac);padding:7px 9px}.auth-submit{width:100%;min-height:45px;margin-top:14px}.auth-submit:disabled{opacity:.65;cursor:wait}.auth-error{margin-top:12px;padding:10px;border-radius:12px;background:color-mix(in srgb,#e5484d 12%,transparent);color:#c92f36;font-size:13px}.auth-foot{margin-top:18px}.auth-loading{max-width:360px}.auth-loading .bar{margin-top:16px}
 @media(max-width:520px){.auth-card{padding:20px;border-radius:20px}}
+
+/* ===== STUDY PLANNER MOBILE LAYOUT ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: calc(75px + env(safe-area-inset-bottom));
+}
+
+/* Main content: vertical scrolling */
+main,
+.app-content,
+.main-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Bottom navigation: horizontal scrolling */
+.bottom-nav,
+.bottom-navigation,
+nav.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+
+  padding: 10px 12px
+    calc(10px + env(safe-area-inset-bottom));
+}
+
+/* Navigation tabs */
+.bottom-nav > *,
+.bottom-navigation > *,
+nav.bottom-nav > * {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Hide horizontal scrollbar */
+.bottom-nav,
+.bottom-navigation {
+  scrollbar-width: none;
+}
+
+.bottom-nav::-webkit-scrollbar,
+.bottom-navigation::-webkit-scrollbar {
+  display: none;
+}
