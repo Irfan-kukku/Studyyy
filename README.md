@@ -13,7 +13,7 @@ The Firebase Web configuration is normally used by browser code. However, GitHub
 Confirm:
 - Authentication → Sign-in method → Email/Password is enabled.
 - Firestore Database exists.
-- The Firebase Auth user `safree@studyplanner.app` exists.
+- The Firebase Auth user exists.
 - The password is known only to you and is entered at login. It is not stored in this repository.
 
 Publish the supplied `firestore.rules` in Firebase Console → Firestore Database → Rules.
@@ -54,9 +54,9 @@ After the workflow succeeds, open the Pages URL shown by GitHub.
 
 ## Login
 
-User ID: `safree`
+User ID: 
 
-The app internally maps this to `safree@studyplanner.app`. The password is entered by the user and handled by Firebase Authentication.
+The app internally maps this to. The password is entered by the user and handled by Firebase Authentication.
 
 ## Firestore data
 
