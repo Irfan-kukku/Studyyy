@@ -1,4 +1,3 @@
-
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
 /*LOGIC*/
 const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
@@ -81,7 +80,43 @@ const cnt=(S,ids)=>ids.filter(i=>stat(S,i)==='Completed').length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const StSel=({S,i,act})=>h`<select value=${stat(S,i)} onChange=${e=>act(op.set,i,e.target.value)}>${ST.map(x=>h`<option key=${x}>${x}</option>`)}</select>`;
 
-/* ---------- motion + hero helpers ---------- */
+/* ---------- motion + hero + creative portrait logo ---------- */
+function LogoAvatar({size='hero', onClick}){
+ const[burst,setBurst]=useState(false);
+ const ref=React.useRef(null);
+ const trig=e=>{
+  if(onClick)onClick(e);
+  setBurst(true);
+  try{navigator.vibrate&&navigator.vibrate([8,24,12])}catch(_){}
+  setTimeout(()=>setBurst(false),650);
+ };
+ const move=e=>{
+  const el=ref.current;if(!el)return;
+  const r=el.getBoundingClientRect();
+  const clientX=e.touches?e.touches[0].clientX:e.clientX;
+  const clientY=e.touches?e.touches[0].clientY:e.clientY;
+  const x=(clientX-r.left-r.width/2)/(r.width/2);
+  const y=(clientY-r.top-r.height/2)/(r.height/2);
+  el.style.transform=`perspective(500px) rotateX(${(-y*16).toFixed(1)}deg) rotateY(${(x*16).toFixed(1)}deg)`;
+ };
+ const reset=()=>{if(ref.current)ref.current.style.transform=''};
+ const handleImgErr=e=>{
+  const t=e.target;
+  if(!t.dataset.step){t.dataset.step='1';t.src='image.png'}
+  else if(t.dataset.step==='1'){t.dataset.step='2';t.src='icons/icon-192.png'}
+ };
+ return h`<div ref=${ref} class=${'sp-logo-stage sz-'+size+(burst?' burst':'')} onClick=${trig} onMouseMove=${move} onMouseLeave=${reset} onTouchMove=${move} onTouchEnd=${reset} title="Study Planner">
+  <div class="sp-logo-halo" aria-hidden="true"/>
+  <div class="sp-logo-orbit" aria-hidden="true"/>
+  <div class="sp-logo-ripple" aria-hidden="true"/>
+  <div class="sp-logo-medallion">
+   <img class="sp-logo-img" src="icons/logo.png" onError=${handleImgErr} alt="Study Planner Logo"/>
+   <div class="sp-logo-sheen" aria-hidden="true"/>
+  </div>
+ </div>`;
+}
+window.SPLogoAvatar=LogoAvatar;
+
 function CountUp({to,dur=900,suffix=''}){const[v,setV]=useState(0);const from=React.useRef(0);
  useEffect(()=>{const a=from.current,b=to;let raf,t0;let reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
   if(a===b||reduce){setV(b);from.current=b;return}
@@ -97,11 +132,13 @@ function nextSlot(S,rt,now){if(rt<0||rt>=lastDay(S))return null;
   if(now<en)return{k,i,st,en,live:now>=st}}return null}
 const fmtIn=ms=>{const m=Math.max(1,Math.round(ms/6e4));return m>=60?Math.floor(m/60)+'h '+(m%60?m%60+'m':''):m+'m'};
 const GRADES=[['aurora','Midnight Aurora','#8b7bff','#2dd4bf'],['rose','Rosé Noir','#f2a7b8','#c9a46a'],['emerald','Emerald Reserve','#4fd9a0','#d9c27a'],['sapphire','Sapphire Sky','#4da3ff','#7ee0ff'],['gold','Classic Gold','#d4b575','#8a6a2c']];
+
 function Intro({onDone}){useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t)},[]);
  return h`<div class="intro" onClick=${onDone} role="presentation"><div class="intro-bg"><i/><i/><i/></div>
-  <div class="intro-core"><div class="intro-orb"><svg class="intro-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5"/><path pathLength="1" class="p2" d="M9 8h7M9 12h5"/></svg></div>
+  <div class="intro-core"><${LogoAvatar} size="intro"/>
   <h1 class="intro-title">${'Study Planner'.split('').map((c,k)=>h`<span key=${k} style=${{'--d':(700+k*55)+'ms'}}>${c===' '?'\u00a0':c}</span>`)}</h1>
   <p class="intro-tag">Plan · Focus · Progress</p><div class="intro-line"><i/></div></div><div class="intro-skip">Tap to skip</div></div>`}
+
 function Hero({S,rt,nd,done,NV,P,user,dark,onTheme,onStyle,onLogout}){
  const[now,setNow]=useState(Date.now());useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),30000);return()=>clearInterval(id)},[]);
  const hr=new Date(now).getHours();const greet=hr<5?'Late night focus':hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
@@ -109,7 +146,7 @@ function Hero({S,rt,nd,done,NV,P,user,dark,onTheme,onStyle,onLogout}){
  return h`<header class="hero"><div class="hero-bg" aria-hidden="true"><i/><i/><i/></div>
   <div class="hero-top"><div><span class="hero-hello">${greet}</span>${user?.email?h`<div class="hero-mail">${user.email}</div>`:null}</div>
    <div class="hero-btns"><button aria-label="Toggle theme" onClick=${onTheme}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button aria-label="Style" onClick=${onStyle}><${Icon} name="palette"/></button><button aria-label="Logout" onClick=${onLogout}><${Icon} name="logout"/></button></div></div>
-  <h1 class="hero-title"><span class="hero-mark"><${Icon} name="book" size=${22}/></span><span>Study <em>Planner</em></span></h1>
+  <h1 class="hero-title"><${LogoAvatar} size="hero"/><span>Study <em>Planner</em></span></h1>
   <div class="hero-sub">Day ${dayN} of ${nd} · ${NV} videos</div>
   <div class="hero-grid"><div class="hero-ring" style=${{'--progress':P+'%'}}><b><${CountUp} to=${P} suffix="%"/></b></div>
    <div class="hero-chips"><div class="hchip flame"><${Icon} name="flame" size=${17}/><span><b><${CountUp} to=${st}/></b> day streak</span></div>
@@ -205,7 +242,6 @@ function SwipeNav({tabs,tab,go}){
     n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:smooth?'smooth':'auto'})};
   useEffect(()=>{place(ind.ok)},[tab]);
   useEffect(()=>{const r=()=>place(false);window.addEventListener('resize',r);upd();return()=>window.removeEventListener('resize',r)},[tab]);
-  /* iPhone-style: press & drag the glass pill (or hold anywhere) and slide it across the bar; release to switch */
   useEffect(()=>{const n=tr.current;if(!n)return;let sc=null;
    const btns=()=>[...n.querySelectorAll('button')];
    const idxAt=x=>{const r=n.getBoundingClientRect(),cx=x-r.left+n.scrollLeft;let best=0,bd=1e9;btns().forEach((b,k)=>{const d=Math.abs(b.offsetLeft+b.offsetWidth/2-cx);if(d<bd){bd=d;best=k}});return best};
@@ -251,7 +287,7 @@ function App({user}){
  useEffect(()=>{let stop=window.SPFirebase?.subscribePlanner((remote)=>{if(remote&&validate(remote.state)===''){remoteUpdate.current=true;setS(remote.state);window.__SP_BOOT_STATE=remote.state}});return()=>{if(stop)stop()}},[]);
  useEffect(()=>{const mq=matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.theme=dark||(mq.matches?'dark':'light')};apply();try{dark?localStorage.setItem('sp.theme',dark):localStorage.removeItem('sp.theme')}catch(e){}if(mq.addEventListener)mq.addEventListener('change',apply);return()=>{if(mq.removeEventListener)mq.removeEventListener('change',apply)}},[dark]);
  useEffect(()=>{if(grade==='gold')delete document.documentElement.dataset.grade;else document.documentElement.dataset.grade=grade;try{localStorage.setItem('sp.grade',grade)}catch(e){}},[grade]);
- useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.30+(glassIntensity/100)*.38));document.documentElement.style.setProperty('--glass-saturation',(120+glassIntensity*.7)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.2)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
+ useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.18+(glassIntensity/100)*.48));document.documentElement.style.setProperty('--glass-saturation',(125+glassIntensity*.8)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.24)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
  useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
  const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;const r=f(S,...a);if(r.err)toast(r.err,1);else{setS(r.S);toast(r.ok||'Saved');if(f===op.set&&before!==stat(r.S,a[0])){const after=stat(r.S,a[0]);if(after==='Completed'){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450);if(soundOn){try{if(!audioRef.current)audioRef.current=new Audio('completion.mp3');audioRef.current.currentTime=0;const play=audioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}else if(before==='Completed'&&after!=='Completed'&&soundOn){try{if(!undoAudioRef.current)undoAudioRef.current=new Audio('uncheck.mp3');undoAudioRef.current.currentTime=0;const play=undoAudioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}}return !r.err};
