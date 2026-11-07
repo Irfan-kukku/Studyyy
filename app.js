@@ -1,4 +1,5 @@
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
+const APP_VERSION='2.4.0';
 /*LOGIC*/
 const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
 const HUE=[200,260,25,150,45,120,330,290,5,175,225];const hue=s=>HUE[s]!==undefined?HUE[s]:(s*137)%360;
@@ -80,7 +81,7 @@ const cnt=(S,ids)=>ids.filter(i=>stat(S,i)==='Completed').length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const StSel=({S,i,act})=>h`<select value=${stat(S,i)} onChange=${e=>act(op.set,i,e.target.value)}>${ST.map(x=>h`<option key=${x}>${x}</option>`)}</select>`;
 
-/* ---------- motion + hero + creative portrait logo ---------- */
+/* ---------- Creative Portrait Logo (Strictly Clipped Shine) ---------- */
 function LogoAvatar({size='hero', onClick}){
  const[burst,setBurst]=useState(false);
  const ref=React.useRef(null);
@@ -111,7 +112,9 @@ function LogoAvatar({size='hero', onClick}){
   <div class="sp-logo-ripple" aria-hidden="true"/>
   <div class="sp-logo-medallion">
    <img class="sp-logo-img" src="icons/logo.png" onError=${handleImgErr} alt="Study Planner Logo"/>
-   <div class="sp-logo-sheen" aria-hidden="true"/>
+   <div class="sp-logo-sheen-clip" aria-hidden="true">
+    <div class="sp-logo-sheen"/>
+   </div>
   </div>
  </div>`;
 }
@@ -231,7 +234,7 @@ function tickReminders(S){
  if(changed){try{localStorage.setItem(FKEY,JSON.stringify(fired.slice(-300)))}catch(e){}}}
 
 
-function Icon({name,size=19}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7',flame:'M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.2.8 2 1.6 2.4C10.4 8 11 5.5 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.3-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z M7.5 11h.01M10 7.5h.01M14.5 7.5h.01',clock:'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',check:'M5 12.5l4.5 4.5L19 7'};return h`<svg class="ui-icon" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
+function Icon({name,size=19,cls=''}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7',flame:'M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.2.8 2 1.6 2.4C10.4 8 11 5.5 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.3-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z M7.5 11h.01M10 7.5h.01M14.5 7.5h.01',clock:'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',check:'M5 12.5l4.5 4.5L19 7',refresh:'M21 12a9 9 0 0 0-15.5-6.3L3 8m0-5v5h5m-5 4a9 9 0 0 0 15.5 6.3L21 16m0 5v-5h-5'};return h`<svg class=${'ui-icon'+(cls?' '+cls:'')} width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
 
 function SwipeNav({tabs,tab,go}){
   const tr=React.useRef(null);const indR=React.useRef(null);const[ind,setInd]=useState({x:0,w:0,ok:false});const[edge,setEdge]=useState({l:false,r:true});const[scrub,setScrub]=useState(false);
@@ -269,8 +272,81 @@ function SwipeNav({tabs,tab,go}){
 
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[grade,setGrade]=useState(()=>{try{return localStorage.getItem('sp.grade')||'aurora'}catch(e){return 'aurora'}});const[intro,setIntro]=useState(()=>{try{if(sessionStorage.getItem('sp.intro'))return false;sessionStorage.setItem('sp.intro','1')}catch(e){}try{return !matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return true}});const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
- const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
+ const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});
+ const[updateReady,setUpdateReady]=useState(false);const[checkingUpdate,setCheckingUpdate]=useState(false);const swRegRef=React.useRef(null);
+ const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
+
+ /* ---------- In-App Update Engine ---------- */
+ useEffect(()=>{
+  if(!('serviceWorker' in navigator))return;
+  let refreshing=false;
+  const onControllerChange=()=>{if(refreshing)return;refreshing=true;window.location.reload()};
+  navigator.serviceWorker.addEventListener('controllerchange',onControllerChange);
+  navigator.serviceWorker.getRegistration().then(reg=>{
+   if(!reg)return;
+   swRegRef.current=reg;
+   if(reg.waiting)setUpdateReady(true);
+   reg.addEventListener('updatefound',()=>{
+    const nw=reg.installing;if(!nw)return;
+    nw.addEventListener('statechange',()=>{
+     if(nw.state==='installed'&&navigator.serviceWorker.controller)setUpdateReady(true);
+    });
+   });
+  }).catch(()=>{});
+  const poll=setInterval(()=>{swRegRef.current?.update().catch(()=>{})},120000);
+  return()=>{navigator.serviceWorker.removeEventListener('controllerchange',onControllerChange);clearInterval(poll)};
+ },[]);
+
+ const applyAppUpdate=async()=>{
+  toast('Installing update…');
+  try{
+   const reg=swRegRef.current||(await navigator.serviceWorker?.getRegistration());
+   if(reg&&reg.waiting){
+    reg.waiting.postMessage({type:'SKIP_WAITING'});
+    setTimeout(()=>window.location.reload(),600);
+    return;
+   }
+   if('caches' in window){
+    const keys=await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+   }
+  }catch(e){}
+  window.location.reload();
+ };
+
+ const checkForAppUpdate=async()=>{
+  if(checkingUpdate)return;
+  setCheckingUpdate(true);
+  try{
+   let foundNew=false;
+   if('serviceWorker' in navigator){
+    const reg=await navigator.serviceWorker.getRegistration();
+    if(reg){
+     swRegRef.current=reg;
+     await reg.update();
+     if(reg.waiting||reg.installing)foundNew=true;
+    }
+   }
+   const res=await fetch('app.js?_t='+Date.now(),{cache:'no-store'});
+   if(res.ok){
+    const txt=await res.text();
+    const m=txt.match(/APP_VERSION=['"]([^'"]+)['"]/);
+    if(m&&m[1]&&m[1]!==APP_VERSION)foundNew=true;
+   }
+   if(foundNew){
+    setUpdateReady(true);
+    toast('New update ready to install!');
+   }else{
+    toast('You are on the latest version (v'+APP_VERSION+')');
+   }
+  }catch(e){
+   toast('Could not check for updates — check connection',1);
+  }finally{
+   setCheckingUpdate(false);
+  }
+ };
+
  useEffect(()=>{const snap=()=>{const t=rawToday();if(t!==lastSeen.current){lastSeen.current=t;setDay(Math.min(Math.max(t,0),ndRef.current-1))}};
   const vis=()=>{if(!document.hidden)snap()};document.addEventListener('visibilitychange',vis);window.addEventListener('focus',snap);window.addEventListener('pageshow',snap);const id=setInterval(snap,30000);
   return()=>{document.removeEventListener('visibilitychange',vis);window.removeEventListener('focus',snap);window.removeEventListener('pageshow',snap);clearInterval(id)}},[]);
@@ -308,8 +384,11 @@ function App({user}){
  const lst=all.filter(i=>(!fs||V[i][0]==fs)&&(!fc||V[i][1]===fc)&&(!fst||stat(S,i)===fst)&&(!q||(nm(i)+where(S,i)).toLowerCase().includes(q.toLowerCase()))&&(!fdt||(pos(S,i)>=0&&dayOf(pos(S,i))===Math.round((new Date(fdt+'T00:00')-START)/864e5))));
  const exp=JSON.stringify(S);
  return h`<div class="w">
+ ${updateReady&&h`<div class="update-banner"><div class="update-banner-info"><span class="update-pulse"/><div><b>New version available</b><div class="mu">Tap to update immediately without losing progress</div></div></div><button class="p" onClick=${applyAppUpdate}>Update now</button></div>`}
  <${Hero} S=${S} rt=${rt} nd=${nd} done=${done} NV=${NV} P=${P} user=${user} dark=${dark} onTheme=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')} onStyle=${()=>setShowGlass(!showGlass)} onLogout=${()=>window.SPFirebase?.signOut()}/>
- ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Style & Glass</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Colour grade</label><div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
+ ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Style & Glass</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Colour grade</label><div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label>
+ <div class="update-row"><div><b>App Update</b><div class="mu">Version v${APP_VERSION}</div></div><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Install Update':checkingUpdate?'Checking…':'Check for Update'}</button></div>
+ <p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
  <div class="card"><div class="bar"><i style=${{width:P+'%'}}/></div><div class="stats">
  <div><b><${CountUp} to=${NV}/></b><span class="mu">Total</span></div><div><b><${CountUp} to=${done}/></b><span class="mu">Done</span></div><div><b><${CountUp} to=${NV-done}/></b><span class="mu">Left</span></div><div><b><${CountUp} to=${rev}/></b><span class="mu">Revisit</span></div><div><b><${CountUp} to=${mvd}/></b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
@@ -355,7 +434,8 @@ function App({user}){
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>sx===null?toast('Nothing to record',1):act(op.extra,sx,smin?'Studied '+smin+' min':'')&&setSmin('')}>Mark as studied</button></div></div>`}
 
  ${tab==='Add'&&h`<${AddTab} S=${S} act=${act}/>`}
- ${tab==='Data'&&h`<div class="card"><h2>Export / import (JSON)</h2><textarea readOnly value=${exp} onFocus=${e=>e.target.select()}/>
+ ${tab==='Data'&&h`<div class="card"><h2>App Update</h2><p class="mu">Check for new features or force-refresh cached files while keeping all your study progress safe.</p><div class="update-row"><div><b>Study Planner v${APP_VERSION}</b><div class="mu">${updateReady?'A new update is ready to install':'Installed & synced'}</div></div><div style=${{display:'flex',gap:8}}><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Update Now':checkingUpdate?'Checking…':'Check for Update'}</button><button onClick=${applyAppUpdate}>Force Reload</button></div></div></div>
+ <div class="card"><h2>Export / import (JSON)</h2><textarea readOnly value=${exp} onFocus=${e=>e.target.select()}/>
  <div style=${{margin:'8px 0'}}><button onClick=${()=>{try{navigator.clipboard.writeText(exp);toast('Copied')}catch(e){toast('Select the text and copy',1)}}}>Copy JSON</button></div>
  <textarea placeholder="Paste exported JSON here" value=${imp} onInput=${e=>setImp(e.target.value)}/>
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>{try{const j=migrate(JSON.parse(imp)),er=validate(j);if(er)toast(er,1);else{setS(j);window.SPFirebase?.writeSnapshot(j).catch(()=>{});setImp('');toast('Imported')}}catch(e){toast('Invalid JSON',1)}}}>Import</button></div></div>
