@@ -147,6 +147,9 @@ function tickReminders(S){
  for(const e of buildEvents(S,rawToday())){if(now>=e.at&&now<=e.until&&!fired.includes(e.key)){fired.push(e.key);changed=true;showNote(e.title,e.body,e.key)}}
  if(changed){try{localStorage.setItem(FKEY,JSON.stringify(fired.slice(-300)))}catch(e){}}}
 
+
+function Icon({name,size=19}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7'};return h`<svg class="ui-icon" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
+
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
@@ -175,14 +178,14 @@ function App({user}){
  const pending=all.filter(i=>stat(S,i)!=='Completed'&&pos(S,i)>=0).sort((a,b)=>pos(S,a)-pos(S,b));
  const overdue=all.filter(i=>(stat(S,i)!=='Completed'&&pos(S,i)>=0&&dayOf(pos(S,i))<rt)||stat(S,i)==='Revisit');
  const missedFor=d=>all.filter(i=>stat(S,i)!=='Completed'&&((pos(S,i)>=0&&dayOf(pos(S,i))<d)||stat(S,i)==='Revisit')).sort((a,b)=>pos(S,a)-pos(S,b));
- const tabs=[['Today','🏠'],['Progress','📊'],['Calendar','📅'],['List','✅'],['Add','➕'],['Tools','🔀'],['Catch-up','🌙'],['Data','💾']];
+ const tabs=[['Today','home'],['Progress','chart'],['Calendar','calendar'],['List','list'],['Add','plus'],['Tools','shuffle'],['Catch-up','moon'],['Data','database']];
  const day=Math.min(day0,nd-1);const dd=dDate(day);const isToday=day===rt;
  const lst=all.filter(i=>(!fs||V[i][0]==fs)&&(!fc||V[i][1]===fc)&&(!fst||stat(S,i)===fst)&&(!q||(nm(i)+where(S,i)).toLowerCase().includes(q.toLowerCase()))&&(!fdt||(pos(S,i)>=0&&dayOf(pos(S,i))===Math.round((new Date(fdt+'T00:00')-START)/864e5))));
  const exp=JSON.stringify(S);
  return h`<div class="w">
- <div class="top"><div><h1>📚 Study Planner</h1><div class="mu">Starts 7 Nov 2026 · ${nd} days · ${NV} videos</div><div class="mu">${user?.email||''}</div></div>
- <div style=${{display:'flex',gap:6}}><button onClick=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')}>🌓</button><button onClick=${()=>setShowGlass(!showGlass)}>✨ Glass</button><button onClick=${()=>window.SPFirebase?.signOut()}>Logout</button></div></div>
- ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>✨ Liquid Glass settings</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
+ <div class="top"><div><h1 class="brand-title"><span class="brand-mark"><${Icon} name="book" size=${21}/></span>Study Planner</h1><div class="mu">Starts 7 Nov 2026 · ${nd} days · ${NV} videos</div><div class="mu">${user?.email||''}</div></div>
+ <div style=${{display:'flex',gap:6}}><button onClick=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button onClick=${()=>setShowGlass(!showGlass)}><${Icon} name="spark"/> Glass</button><button onClick=${()=>window.SPFirebase?.signOut()}><${Icon} name="logout"/> Logout</button></div></div>
+ ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Liquid Glass settings</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
  <div class="card"><div class="bar"><i style=${{width:P+'%'}}/></div><div class="stats">
  <div><b>${NV}</b><span class="mu">Total</span></div><div><b>${done}</b><span class="mu">Done</span></div><div><b>${NV-done}</b><span class="mu">Left</span></div><div><b>${rev}</b><span class="mu">Revisit</span></div><div><b>${mvd}</b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
@@ -193,7 +196,7 @@ function App({user}){
  ${rt<0&&h`<p class="mu">Your plan begins on 7 Nov 2026 — previewing Day 1.</p>`}
  <div style=${{marginTop:12}}>${[0,1,2,3,4].map(k=>[k,S.sched[day*PER+k]]).map(([k,i])=>
   i===null||i===undefined?h`<div class="row" key=${k}><div class="m mu">${SLOT[k]} · Free slot</div></div>`:h`<${VRow} key=${k} S=${S} i=${i} act=${act} time=${SLOT[k]+' · Video slot '+(k+1)}/>`)}
- <div class="row" style=${{display:'block'}}><b>🌙 Catch-up · use the 9:15–11:00 PM extra slot if free</b>
+ <div class="row" style=${{display:'block'}}><b>Catch-up · use the 9:15–11:00 PM extra slot if free</b>
  ${(S.cu||[]).filter(c=>c.day===day).map(c=>h`<div class="mu" key=${c.i}>✅ Watched: ${nm(c.i)}</div>`)}
  ${missedFor(day).length?h`<div class="mu" style=${{margin:'6px 0'}}>Missed earlier — watch one now:</div>${missedFor(day).slice(0,5).map(i=>h`<div key=${i} style=${{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginBottom:6}}><span><span class="chip" style=${{'--c':col(V[i][0])}}>${SUBJ[V[i][0]]}</span> ${V[i][1]} · V${V[i][2]}<span class="mu"> · ${stat(S,i)==='Revisit'?'Revisit':where(S,i).split(' · ')[0]}</span></span><button class="p" onClick=${()=>act(op.catchup,i,day)}>Watched</button></div>`)}`:h`<div class="mu" style=${{marginTop:4}}>Free — nothing missed.</div>`}</div></div></div>`}
 
@@ -205,24 +208,24 @@ function App({user}){
  ${Array.from({length:nd},(_,d)=>{const ids=S.sched.slice(d*PER,d*PER+PER).filter(x=>x!==null);const n=ids.filter(i=>stat(S,i)==='Completed').length;
   return h`<button key=${d} onClick=${()=>{setDay(d);setTab('Today')}} style=${{background:n&&n===ids.length?'color-mix(in srgb,#2fb16b 35%,transparent)':'',outline:d===rt?'2px solid var(--ac)':''}}><b>${dDate(d).getDate()}</b>${dDate(d).toLocaleDateString(undefined,{month:'short'})}<br/>${n}/${ids.length}</button>`})}</div></div>`}
 
- ${tab==='List'&&h`<div class="card"><div class="g"><input placeholder="🔍 Search" value=${q} onInput=${e=>setQ(e.target.value)}/>
+ ${tab==='List'&&h`<div class="card"><div class="g"><input placeholder="Search videos" value=${q} onInput=${e=>setQ(e.target.value)}/>
  <div class="g g2"><select value=${fs} onChange=${e=>{setFs(e.target.value);setFc('')}}><option value="">All subjects</option>${SUBJ.map((x,i)=>h`<option value=${i} key=${i}>${x}</option>`)}</select>
  <select value=${fc} onChange=${e=>setFc(e.target.value)}><option value="">All chapters</option>${[...new Set(Object.keys(CH).filter(k=>!fs||k.split('|')[0]==fs).map(k=>k.split('|')[1]))].map(c=>h`<option key=${c}>${c}</option>`)}</select>
  <select value=${fst} onChange=${e=>setFst(e.target.value)}><option value="">All statuses</option>${ST.map(x=>h`<option key=${x}>${x}</option>`)}</select>
  <input type="date" value=${fdt} onChange=${e=>setFdt(e.target.value)}/></div></div><div class="mu" style=${{margin:'8px 0'}}>${lst.length} videos</div>
  ${lst.map(i=>h`<${VRow} key=${i} S=${S} i=${i} act=${act} time=${where(S,i)}/>`)}</div>`}
 
- ${tab==='Tools'&&h`<div class="card"><h2>➕ Extra video</h2><${Pick} S=${S} onPick=${setEx}/><input style=${{width:'100%',margin:'8px 0'}} placeholder="Note (optional)" value=${note} onInput=${e=>setNote(e.target.value)}/>
+ ${tab==='Tools'&&h`<div class="card"><h2>Extra video</h2><${Pick} S=${S} onPick=${setEx}/><input style=${{width:'100%',margin:'8px 0'}} placeholder="Note (optional)" value=${note} onInput=${e=>setNote(e.target.value)}/>
  <button class="p" onClick=${()=>act(op.extra,ex,note)&&setNote('')}>Record as completed</button></div>
- <div class="card"><h2>🔁 Replace a planned video with an extra</h2><div class="mu">Planned video (will be displaced)</div>
+ <div class="card"><h2>Replace a planned video with an extra</h2><div class="mu">Planned video (will be displaced)</div>
  <select style=${{width:'100%',margin:'6px 0'}} value=${pl} onChange=${e=>setPl(e.target.value)}><option value="">Choose…</option>${pending.map(i=>h`<option value=${i} key=${i}>${where(S,i).split(' · ')[0]} · ${nm(i)}</option>`)}</select>
  <div class="mu">Extra video watched instead</div><${Pick} S=${S} onPick=${setXs}/><div style=${{marginTop:8}}><button class="p" onClick=${()=>pl===''?toast('Choose the planned video',1):act(op.swap,+pl,xs,note)}>Swap & reschedule displaced</button></div></div>
- <div class="card"><h2>📆 Move a planned video</h2><div class="g g2"><select value=${mv} onChange=${e=>setMv(e.target.value)}><option value="">Video…</option>${pending.map(i=>h`<option value=${i} key=${i}>${nm(i)}</option>`)}</select>
+ <div class="card"><h2>Move a planned video</h2><div class="g g2"><select value=${mv} onChange=${e=>setMv(e.target.value)}><option value="">Video…</option>${pending.map(i=>h`<option value=${i} key=${i}>${nm(i)}</option>`)}</select>
  <select value=${md} onChange=${e=>setMd(+e.target.value)}>${Array.from({length:nd+3},(_,d)=>h`<option value=${d+1} key=${d}>Day ${d+1} · ${fd(d)}</option>`)}</select></div>
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>mv===''?toast('Choose a video',1):act(op.move,+mv,md)}>Move</button></div></div>`}
 
- ${tab==='Catch-up'&&h`<div class="card"><h2>🌙 Catch-up · evening</h2><p class="mu">Videos you missed on earlier days (or marked Revisit) can be watched in tonight's extra evening slot.</p>${overdue.length?overdue.map(i=>h`<div class="row" key=${i} style=${{'--c':col(V[i][0])}}><div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${stat(S,i)==='Revisit'?'Revisit':'Missed · '+where(S,i)}</div></div><button class="p" onClick=${()=>act(op.catchup,i,Math.max(rt,0))}>Watched tonight</button></div>`):h`<p>🎉 The evening slot is free — nothing pending.</p>`}</div>
- <div class="card"><h2>📖 Which extra class did you study today?</h2><div class="mu" style=${{marginBottom:8}}>Pick from your remaining videos</div><${PickRem} S=${S} onPick=${setSx}/>
+ ${tab==='Catch-up'&&h`<div class="card"><h2>Catch-up · evening</h2><p class="mu">Videos you missed on earlier days (or marked Revisit) can be watched in tonight's extra evening slot.</p>${overdue.length?overdue.map(i=>h`<div class="row" key=${i} style=${{'--c':col(V[i][0])}}><div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${stat(S,i)==='Revisit'?'Revisit':'Missed · '+where(S,i)}</div></div><button class="p" onClick=${()=>act(op.catchup,i,Math.max(rt,0))}>Watched tonight</button></div>`):h`<p>🎉 The evening slot is free — nothing pending.</p>`}</div>
+ <div class="card"><h2>Which extra class did you study today?</h2><div class="mu" style=${{marginBottom:8}}>Pick from your remaining videos</div><${PickRem} S=${S} onPick=${setSx}/>
  <input type="number" style=${{width:'100%',marginTop:8}} placeholder="Minutes (optional)" value=${smin} onInput=${e=>setSmin(e.target.value)}/>
  <div style=${{marginTop:8}}><button class="p" onClick=${()=>sx===null?toast('Nothing to record',1):act(op.extra,sx,smin?'Studied '+smin+' min':'')&&setSmin('')}>Mark as studied</button></div></div>`}
 
@@ -234,8 +237,8 @@ function App({user}){
  <div class="card"><h2>Reset</h2>${rst?h`<p>Erase all progress and restore the original timetable?</p><button class="d" onClick=${()=>{setS(init());window.SPFirebase?.writeSnapshot(init()).catch(()=>{});setRst(false);toast('Reset done')}}>Yes, reset</button> <button onClick=${()=>setRst(false)}>Cancel</button>`:h`<button class="d" onClick=${()=>setRst(true)}>Reset everything</button>`}</div>
  <div class="card"><h2>Change log</h2>${S.log.length?S.log.slice(0,80).map((l,k)=>h`<div key=${k} class="mu" style=${{padding:'4px 0',borderBottom:'1px solid var(--ln)'}}>${new Date(l.t).toLocaleString()} — ${l.m}</div>`):h`<span class="mu">No changes yet.</span>`}</div>`}
 
- ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed!</b><span>Great work — keep going 🎉</span></div>`}
- <nav>${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} onClick=${()=>setTab(t)}><b>${ic}</b>${t}</button>`)}</nav>
+ ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed</b><span>Excellent progress. Keep going.</span></div>`}
+ <nav>${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} onClick=${()=>setTab(t)}><b><${Icon} name=${ic} size=${20}/></b>${t}</button>`)}</nav>
  ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}</div>`}
 
 
