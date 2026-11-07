@@ -18,3 +18,7 @@ Premium update
 - Five colour grades (Style button in the header): Midnight Aurora (default), Rose Noir, Emerald Reserve, Sapphire Sky, Classic Gold. Each has dark and light versions.
 - Animated opening screen (once per app launch, tap to skip). Numbers count up.
 - Fixed: choosing "System" appearance now actually follows the phone's light/dark setting.
+
+Home-screen icon fix
+- Android/iOS builds (Capacitor) now use your photo as the app icon: icons are stored in native-icons/ and copied in by the build workflows.
+- PWA: added 180px Apple touch icon and a separate maskable icon so Android does not crop the face.

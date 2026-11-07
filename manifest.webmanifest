@@ -1,5 +1,5 @@
 {
-  "name": "Study Planner · 174 Videos",
+  "name": "Study Planner \u00b7 174 Videos",
   "short_name": "Study Planner",
   "description": "Your 174-video Study Planner with Firebase sync.",
   "start_url": "./",
@@ -13,13 +13,19 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
