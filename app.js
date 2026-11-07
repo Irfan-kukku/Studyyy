@@ -49,7 +49,10 @@ swap(S,pid,xid,note){if(pid===xid)return{err:'Pick two different videos'};if(pos
 move(S,i,day){if(stat(S,i)==='Completed'||pos(S,i)<0)return{err:'Only pending planned videos can be moved'};
  const T=clone(S);while(T.sched.length<day*PER)T.sched.push(null);let j=-1;for(let k=(day-1)*PER;k<day*PER;k++)if(T.sched[k]===null){j=k;break}
  if(j<0)return{err:'Day '+day+' has no free slot — use Swap instead'};const from=where(S,i);T.sched[T.sched.indexOf(i)]=null;T.sched[j]=i;reorder(T,i);T.st[i]='Moved';
- L(T,'Moved '+nm(i)+': '+from+' → '+where(T,i));return{S:T,ok:'Moved to '+where(T,i)}},
+ const actual=where(T,i),actualDay=dayOf(T.sched.indexOf(i))+1;
+ L(T,'Moved '+nm(i)+': '+from+' → '+actual+(actualDay!==day?' (requested Day '+day+'; adjusted to preserve chapter order)':''));
+ const ok=actualDay===day?'Moved to '+actual:'Requested Day '+day+'; placed on '+actual+' to keep this chapter’s videos in order.';
+ return{S:T,ok}},
 catchup(S,i,day){if(stat(S,i)==='Completed')return{err:'Already completed'};if(!earlierOK(S,i))return{err:'Finish the earlier videos of this chapter first'};
  const p=pos(S,i);const T=clone(S);if(p>=0)T.sched[p]=null;T.st[i]='Completed';(T.cu=T.cu||[]).push({i,day,t:Date.now()});
  L(T,'Catch-up (Day '+(day+1)+', evening): '+nm(i)+(p>=0?' — missed from Day '+(dayOf(p)+1):''));return{S:T,ok:'Caught up: '+nm(i)}},
@@ -130,10 +133,11 @@ function buildEvents(S,rt){
  for(const d of [rt-1,rt]){if(d<0||d>=nd)continue;
   for(let k=0;k<PER;k++){const i=S.sched[d*PER+k];if(i===null||i===undefined||stat(S,i)==='Completed')continue;
    const t=new Date(dDate(d));t.setHours(0,SLOT_MIN[k],0,0);const st=t.getTime();
-   ev.push({key:'s|'+d+'|'+k+'|'+i,at:st,until:st+10*6e4,title:'📚 Time to study · Day '+(d+1),body:nm(i)+' · '+SLOT[k]})}}
+   const calendarDate=new Date(st).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+   ev.push({key:'s|'+d+'|'+k+'|'+i,at:st,until:st+10*6e4,title:'📚 Study reminder · Plan Day '+(d+1),body:nm(i)+' · '+SLOT[k]+' · Calendar date: '+calendarDate})}}
  return ev}
 async function showNote(title,body,tag){
- const o={body,tag,icon:'icon-192.png',badge:'icon-192.png'};
+ const o={body,tag,icon:'icons/icon-192.png',badge:'icons/icon-192.png'};
  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg){await reg.showNotification(title,o);return true}}catch(e){}
  try{new Notification(title,o);return true}catch(e){return false}}
 function tickReminders(S){
@@ -144,9 +148,8 @@ function tickReminders(S){
  if(changed){try{localStorage.setItem(FKEY,JSON.stringify(fired.slice(-300)))}catch(e){}}}
 
 function App({user}){
- const boot=window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load();
- const[S,setS]=useState(boot);applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
- const[msg,setMsg]=useState(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
+ const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
+ const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
  useEffect(()=>{const snap=()=>{const t=rawToday();if(t!==lastSeen.current){lastSeen.current=t;setDay(Math.min(Math.max(t,0),ndRef.current-1))}};
   const vis=()=>{if(!document.hidden)snap()};document.addEventListener('visibilitychange',vis);window.addEventListener('focus',snap);window.addEventListener('pageshow',snap);const id=setInterval(snap,30000);
@@ -163,8 +166,10 @@ function App({user}){
  useEffect(()=>{localSave(S);if(!syncReady.current){syncReady.current=true;return;}if(remoteUpdate.current){remoteUpdate.current=false;return;}window.SPFirebase?.savePlanner(S).catch(()=>{})},[S]);
  useEffect(()=>{let stop=window.SPFirebase?.subscribePlanner((remote)=>{if(remote&&validate(remote.state)===''){remoteUpdate.current=true;setS(remote.state);window.__SP_BOOT_STATE=remote.state}});return()=>{if(stop)stop()}},[]);
  useEffect(()=>{if(dark){document.documentElement.dataset.theme=dark;try{localStorage.setItem('sp.theme',dark)}catch(e){}}},[dark]);
+ useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.30+(glassIntensity/100)*.38));document.documentElement.style.setProperty('--glass-saturation',(120+glassIntensity*.7)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.2)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
+ useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
- const act=(f,...a)=>{const r=f(S,...a);if(r.err)toast(r.err,1);else{setS(r.S);toast(r.ok||'Saved')}return !r.err};
+ const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;const r=f(S,...a);if(r.err)toast(r.err,1);else{setS(r.S);toast(r.ok||'Saved');if(f===op.set&&before!==stat(r.S,a[0])){const after=stat(r.S,a[0]);if(after==='Completed'){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450);if(soundOn){try{if(!audioRef.current)audioRef.current=new Audio('completion.mp3');audioRef.current.currentTime=0;const play=audioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}else if(before==='Completed'&&after!=='Completed'&&soundOn){try{if(!undoAudioRef.current)undoAudioRef.current=new Audio('uncheck.mp3');undoAudioRef.current.currentTime=0;const play=undoAudioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}}return !r.err};
  const all=[...Array(NV).keys()];const done=cnt(S,all);const P=pct(done,NV);
  const rev=all.filter(i=>stat(S,i)==='Revisit').length,mvd=all.filter(i=>stat(S,i)==='Moved').length;
  const pending=all.filter(i=>stat(S,i)!=='Completed'&&pos(S,i)>=0).sort((a,b)=>pos(S,a)-pos(S,b));
@@ -176,7 +181,8 @@ function App({user}){
  const exp=JSON.stringify(S);
  return h`<div class="w">
  <div class="top"><div><h1>📚 Study Planner</h1><div class="mu">Starts 7 Nov 2026 · ${nd} days · ${NV} videos</div><div class="mu">${user?.email||''}</div></div>
- <div style=${{display:'flex',gap:6}}><button onClick=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')}>🌓</button><button onClick=${()=>window.SPFirebase?.signOut()}>Logout</button></div></div>
+ <div style=${{display:'flex',gap:6}}><button onClick=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')}>🌓</button><button onClick=${()=>setShowGlass(!showGlass)}>✨ Glass</button><button onClick=${()=>window.SPFirebase?.signOut()}>Logout</button></div></div>
+ ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>✨ Liquid Glass settings</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label><p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
  <div class="card"><div class="bar"><i style=${{width:P+'%'}}/></div><div class="stats">
  <div><b>${NV}</b><span class="mu">Total</span></div><div><b>${done}</b><span class="mu">Done</span></div><div><b>${NV-done}</b><span class="mu">Left</span></div><div><b>${rev}</b><span class="mu">Revisit</span></div><div><b>${mvd}</b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
@@ -228,6 +234,7 @@ function App({user}){
  <div class="card"><h2>Reset</h2>${rst?h`<p>Erase all progress and restore the original timetable?</p><button class="d" onClick=${()=>{setS(init());window.SPFirebase?.writeSnapshot(init()).catch(()=>{});setRst(false);toast('Reset done')}}>Yes, reset</button> <button onClick=${()=>setRst(false)}>Cancel</button>`:h`<button class="d" onClick=${()=>setRst(true)}>Reset everything</button>`}</div>
  <div class="card"><h2>Change log</h2>${S.log.length?S.log.slice(0,80).map((l,k)=>h`<div key=${k} class="mu" style=${{padding:'4px 0',borderBottom:'1px solid var(--ln)'}}>${new Date(l.t).toLocaleString()} — ${l.m}</div>`):h`<span class="mu">No changes yet.</span>`}</div>`}
 
+ ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed!</b><span>Great work — keep going 🎉</span></div>`}
  <nav>${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} onClick=${()=>setTab(t)}><b>${ic}</b>${t}</button>`)}</nav>
  ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}</div>`}
 

@@ -1,0 +1,12 @@
+Study Planner — update notes
+
+Changes in this package
+1. The planner's saved state is now loaded through a lazy React state initializer, so localStorage loading and validation are not repeated on every render.
+2. Moving a video now reports both the requested day and its actual placement when chapter-order rules move it to an earlier day.
+3. Reminder notifications distinguish the timetable's Plan Day from the real calendar date. The 12:00–1:00 AM slot remains scheduled at midnight after the plan day.
+4. Fixed the Apple touch icon, notification icon, and web app manifest icon paths to use the existing icons/ folder.
+
+Important Firebase note
+- firebase-config.js is intentionally not included because this repository creates it during GitHub Actions deployment from repository secrets.
+- Keep your existing Firebase GitHub Actions secrets. Do not replace them with placeholder values.
+- The login and cloud sync need a deployed build with valid Firebase configuration.
