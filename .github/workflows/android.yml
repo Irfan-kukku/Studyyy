@@ -90,6 +90,45 @@ jobs:
       - name: Create Android project
         run: npx cap add android
 
+      - name: Apply Study Planner app icon
+        run: |
+          python3 -m venv /tmp/iconenv
+          /tmp/iconenv/bin/pip install pillow
+          /tmp/iconenv/bin/python - <<'PY'
+          from PIL import Image, ImageFilter, ImageDraw
+          import os
+          res = 'android/app/src/main/res'
+          big = Image.open('icons/icon-512.png').convert('RGB').resize((1024, 1024), Image.LANCZOS)
+          blur = big.filter(ImageFilter.GaussianBlur(40))
+          def clip(im, shape):
+              m = Image.new('L', im.size, 0)
+              d = ImageDraw.Draw(m)
+              if shape == 'circle':
+                  d.ellipse((0, 0) + im.size, fill=255)
+              else:
+                  d.rounded_rectangle((0, 0) + im.size, radius=int(im.size[0] * 0.22), fill=255)
+              o = im.convert('RGBA')
+              o.putalpha(m)
+              return o
+          sizes = {'mdpi': (48, 108), 'hdpi': (72, 162), 'xhdpi': (96, 216), 'xxhdpi': (144, 324), 'xxxhdpi': (192, 432)}
+          for name, (l, a) in sizes.items():
+              p = res + '/mipmap-' + name
+              os.makedirs(p, exist_ok=True)
+              small = big.resize((l, l), Image.LANCZOS)
+              clip(small, 'square').save(p + '/ic_launcher.png')
+              clip(small, 'circle').save(p + '/ic_launcher_round.png')
+              blur.resize((a, a), Image.LANCZOS).save(p + '/ic_launcher_bg.png')
+              fg = Image.new('RGBA', (a, a), (0, 0, 0, 0))
+              s = int(a * 0.84)
+              fg.paste(big.resize((s, s), Image.LANCZOS), ((a - s) // 2, (a - s) // 2))
+              fg.save(p + '/ic_launcher_fg.png')
+          os.makedirs(res + '/mipmap-anydpi-v26', exist_ok=True)
+          xml = '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@mipmap/ic_launcher_bg"/>\n    <foreground android:drawable="@mipmap/ic_launcher_fg"/>\n</adaptive-icon>\n'
+          for n in ('ic_launcher', 'ic_launcher_round'):
+              open(res + '/mipmap-anydpi-v26/' + n + '.xml', 'w').write(xml)
+          PY
+          rm -f android/app/src/main/res/drawable/ic_launcher_background.xml android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml
+
       - name: Sync Android project
         run: npx cap sync android
 
