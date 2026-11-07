@@ -80,7 +80,7 @@ const Bar=({p,c,label})=>h`<div><div class="nm"><span>${label}</span><span class
 const cnt=(S,ids)=>ids.filter(i=>stat(S,i)==='Completed').length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const StSel=({S,i,act})=>h`<select value=${stat(S,i)} onChange=${e=>act(op.set,i,e.target.value)}>${ST.map(x=>h`<option key=${x}>${x}</option>`)}</select>`;
-const VRow=({S,i,act,time})=>h`<div class="row" style=${{'--c':col(V[i][0])}}>
+const VRow=({S,i,act,time,today=false})=>h`<div class=${'row video-row'+(today?' today-video':'')} style=${{'--c':col(V[i][0])}}>
  <input type="checkbox" checked=${stat(S,i)==='Completed'} onChange=${e=>act(op.set,i,e.target.checked?'Completed':'Not Started')}/>
  <div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${time}</div></div><${StSel} S=${S} i=${i} act=${act}/></div>`;
 function Pick({S,onPick,pending}){const[s,setS]=useState(0);const[c,setC]=useState(0);const[v,setV]=useState(0);
@@ -195,7 +195,7 @@ function App({user}){
  <button onClick=${()=>setDay(Math.min(nd-1,day+1))}>›</button></div>
  ${rt<0&&h`<p class="mu">Your plan begins on 7 Nov 2026 — previewing Day 1.</p>`}
  <div style=${{marginTop:12}}>${[0,1,2,3,4].map(k=>[k,S.sched[day*PER+k]]).map(([k,i])=>
-  i===null||i===undefined?h`<div class="row" key=${k}><div class="m mu">${SLOT[k]} · Free slot</div></div>`:h`<${VRow} key=${k} S=${S} i=${i} act=${act} time=${SLOT[k]+' · Video slot '+(k+1)}/>`)}
+  i===null||i===undefined?h`<div class="row" key=${k}><div class="m mu">${SLOT[k]} · Free slot</div></div>`:h`<${VRow} key=${k} S=${S} i=${i} act=${act} today=${isToday} time=${SLOT[k]+' · Video slot '+(k+1)}/>`)}
  <div class="row" style=${{display:'block'}}><b>Catch-up · use the 9:15–11:00 PM extra slot if free</b>
  ${(S.cu||[]).filter(c=>c.day===day).map(c=>h`<div class="mu" key=${c.i}>✅ Watched: ${nm(c.i)}</div>`)}
  ${missedFor(day).length?h`<div class="mu" style=${{margin:'6px 0'}}>Missed earlier — watch one now:</div>${missedFor(day).slice(0,5).map(i=>h`<div key=${i} style=${{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginBottom:6}}><span><span class="chip" style=${{'--c':col(V[i][0])}}>${SUBJ[V[i][0]]}</span> ${V[i][1]} · V${V[i][2]}<span class="mu"> · ${stat(S,i)==='Revisit'?'Revisit':where(S,i).split(' · ')[0]}</span></span><button class="p" onClick=${()=>act(op.catchup,i,day)}>Watched</button></div>`)}`:h`<div class="mu" style=${{marginTop:4}}>Free — nothing missed.</div>`}</div></div></div>`}
