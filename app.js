@@ -462,3 +462,32 @@ const changeLogoStyle = (style) => {
   document.body.dataset.logoStyle = style;
   toast('Logo style updated');
 };
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('macosModal');
+  const openBtn = document.getElementById('openModalBtn');
+  const closeBtn = document.getElementById('closeModalBtn');
+
+  // Open Window
+  openBtn.addEventListener('click', () => {
+    modal.classList.add('is-open');
+  });
+
+  // Close Window via Red Dot
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('is-open');
+  });
+
+  // Close Window when clicking outside the modal window box
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('is-open');
+    }
+  });
+
+  // Optional: Close on pressing 'Escape' key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+      modal.classList.remove('is-open');
+    }
+  });
+});
