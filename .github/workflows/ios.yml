@@ -81,6 +81,11 @@ jobs:
       - name: Create iOS project
         run: npx cap add ios
 
+      - name: Apply Study Planner app icon
+        run: |
+          sips -z 1024 1024 icons/icon-512.png --out /tmp/AppIcon.png
+          find ios/App/App/Assets.xcassets/AppIcon.appiconset -name '*.png' -exec cp /tmp/AppIcon.png {} \;
+
       - name: Sync iOS project
         run: npx cap sync ios
 
