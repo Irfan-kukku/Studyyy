@@ -15,6 +15,29 @@
 </head>
 <body>
 <div id="root"></div>
+<!-- Trigger Button -->
+<button id="openModalBtn" class="p">Open macOS Window</button>
+
+<!-- Modal Overlay & Window -->
+<div id="macosModal" class="macos-modal-overlay">
+  <div class="macos-window">
+    <!-- Titlebar -->
+    <div class="macos-titlebar">
+      <div class="traffic-lights">
+        <button class="dot dot-close" id="closeModalBtn" aria-label="Close"></button>
+        <button class="dot dot-minimize" aria-label="Minimize"></button>
+        <button class="dot dot-expand" aria-label="Expand"></button>
+      </div>
+      <div class="macos-title">Study Planner Preferences</div>
+    </div>
+    
+    <!-- Body Content -->
+    <div class="macos-content">
+      <h3>macOS Animation Effect</h3>
+      <p>This window pops up smoothly using a custom spring physics curve mimicking macOS system popups.</p>
+    </div>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.js"></script>
