@@ -68,7 +68,7 @@ jobs:
           };
           fs.writeFileSync(
             'www/firebase-config.js',
-            'const firebaseConfig = ' + JSON.stringify(config) + ';'
+            'window.firebaseConfig = ' + JSON.stringify(config) + ';'
           );
           NODE
 
