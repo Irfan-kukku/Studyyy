@@ -462,3 +462,11 @@ nav.dock button:active{transform:scale(.88)!important}
   .hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *,.sp-logo-halo,.sp-logo-orbit,.sp-logo-ripple,.sp-logo-medallion,.sp-logo-sheen{animation:none!important}
   .hero-ring{transition:none}
 }
+/* Logo Variant Theme Overlays */
+body[data-logo-style="classic"] .sp-logo-medallion {
+  border-radius: 18px !important; /* Switch from liquid blob to clean rounded square */
+}
+body[data-logo-style="minimal"] .sp-logo-halo,
+body[data-logo-style="minimal"] .sp-logo-orbit {
+  display: none !important; /* Clean minimal look without glowing aura */
+}
