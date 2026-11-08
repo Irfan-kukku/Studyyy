@@ -1,5 +1,5 @@
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
-const APP_VERSION='2.4.0';
+const APP_VERSION='2.4.1';
 /*LOGIC*/
 const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
 const HUE=[200,260,25,150,45,120,330,290,5,175,225];const hue=s=>HUE[s]!==undefined?HUE[s]:(s*137)%360;
@@ -148,7 +148,7 @@ function Hero({S,rt,nd,done,NV,P,user,dark,onTheme,onStyle,onLogout}){
  const st=streakOf(S);const nx=nextSlot(S,rt,now);const dayN=Math.min(Math.max(rt,0),nd-1)+1;
  return h`<header class="hero"><div class="hero-bg" aria-hidden="true"><i/><i/><i/></div>
   <div class="hero-top"><div><span class="hero-hello">${greet}</span>${user?.email?h`<div class="hero-mail">${user.email}</div>`:null}</div>
-   <div class="hero-btns"><button aria-label="Toggle theme" onClick=${onTheme}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button aria-label="Style" onClick=${onStyle}><${Icon} name="palette"/></button><button aria-label="Logout" onClick=${onLogout}><${Icon} name="logout"/></button></div></div>
+   <div class="hero-btns"><button aria-label="Toggle theme" onClick=${onTheme}><${Icon} name=${dark==='dark'?'sun':'moon'}/></button><button aria-label="Style & Glass" onClick=${onStyle}><${Icon} name="palette"/></button><button aria-label="Logout" onClick=${onLogout}><${Icon} name="logout"/></button></div></div>
   <h1 class="hero-title"><${LogoAvatar} size="hero"/><span>Study <em>Planner</em></span></h1>
   <div class="hero-sub">Day ${dayN} of ${nd} · ${NV} videos</div>
   <div class="hero-grid"><div class="hero-ring" style=${{'--progress':P+'%'}}><b><${CountUp} to=${P} suffix="%"/></b></div>
@@ -236,48 +236,200 @@ function tickReminders(S){
 
 function Icon({name,size=19,cls=''}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7',flame:'M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.2.8 2 1.6 2.4C10.4 8 11 5.5 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.3-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z M7.5 11h.01M10 7.5h.01M14.5 7.5h.01',clock:'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',check:'M5 12.5l4.5 4.5L19 7',refresh:'M21 12a9 9 0 0 0-15.5-6.3L3 8m0-5v5h5m-5 4a9 9 0 0 0 15.5 6.3L21 16m0 5v-5h-5'};return h`<svg class=${'ui-icon'+(cls?' '+cls:'')} width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
 
+/* ---------- 120fps Zero-Lag iPhone Instagram Floating Dock ---------- */
 function SwipeNav({tabs,tab,go}){
-  const tr=React.useRef(null);const indR=React.useRef(null);const[ind,setInd]=useState({x:0,w:0,ok:false});const[edge,setEdge]=useState({l:false,r:true});const[scrub,setScrub]=useState(false);
-  const goR=React.useRef(go);goR.current=go;const tabsR=React.useRef(tabs);tabsR.current=tabs;const sup=React.useRef(0);
-  const upd=()=>{const n=tr.current;if(!n)return;setEdge({l:n.scrollLeft>6,r:n.scrollLeft+n.clientWidth<n.scrollWidth-6})};
-  const place=(smooth)=>{const n=tr.current;if(!n)return;const b=n.querySelector('button.on');if(!b)return;
-    setInd({x:b.offsetLeft,w:b.offsetWidth,ok:true});if(indR.current){indR.current.style.transform='translateX('+b.offsetLeft+'px)';indR.current.style.width=b.offsetWidth+'px'}
-    n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:smooth?'smooth':'auto'})};
-  useEffect(()=>{place(ind.ok)},[tab]);
-  useEffect(()=>{const r=()=>place(false);window.addEventListener('resize',r);upd();return()=>window.removeEventListener('resize',r)},[tab]);
-  useEffect(()=>{const n=tr.current;if(!n)return;let sc=null;
-   const btns=()=>[...n.querySelectorAll('button')];
-   const idxAt=x=>{const r=n.getBoundingClientRect(),cx=x-r.left+n.scrollLeft;let best=0,bd=1e9;btns().forEach((b,k)=>{const d=Math.abs(b.offsetLeft+b.offsetWidth/2-cx);if(d<bd){bd=d;best=k}});return best};
-   const peek=k=>btns().forEach((b,j)=>b.classList.toggle('peek',j===k));
-   const begin=()=>{if(!sc)return;sc.on=true;sc.k=null;setScrub(true);try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}};
-   const start=e=>{const t=e.touches[0];sc={x:t.clientX,y:t.clientY,on:false,moved:false,k:null};
-     if(e.target.closest&&e.target.closest('button.on'))begin();else sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},230)};
-   const move=e=>{if(!sc)return;const t=e.touches[0];
-     if(!sc.on){if(Math.abs(t.clientX-sc.x)>8||Math.abs(t.clientY-sc.y)>8){sc.moved=true;clearTimeout(sc.hold)}return}
-     if(e.cancelable)e.preventDefault();
-     const bs=btns(),k=idxAt(t.clientX),b=bs[k];if(!b)return;
-     const r=n.getBoundingClientRect(),cx=t.clientX-r.left+n.scrollLeft,w=b.offsetWidth;
-     const x=Math.max(bs[0].offsetLeft,Math.min(bs[bs.length-1].offsetLeft+bs[bs.length-1].offsetWidth-w,cx-w/2));
-     if(indR.current){indR.current.style.transform='translateX('+x+'px)';indR.current.style.width=w+'px'}
-     if(k!==sc.k){sc.k=k;peek(k);try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}}
-     if(t.clientX-r.left<46)n.scrollLeft-=7;else if(r.right-t.clientX<46)n.scrollLeft+=7};
-   const end=()=>{if(!sc)return;clearTimeout(sc.hold);const was=sc.on,k=sc.k;sc=null;
-     if(was){setScrub(false);sup.current=Date.now();peek(-1);const tt=k===null?null:tabsR.current[k];if(tt)goR.current(tt[0]);setTimeout(()=>place(true),60)}};
-   n.addEventListener('touchstart',start,{passive:true});n.addEventListener('touchmove',move,{passive:false});n.addEventListener('touchend',end);n.addEventListener('touchcancel',end);
-   return()=>{n.removeEventListener('touchstart',start);n.removeEventListener('touchmove',move);n.removeEventListener('touchend',end);n.removeEventListener('touchcancel',end)}},[]);
-  return h`<nav class="dock" aria-label="Main navigation"><div class=${'dock-track'+(edge.l?' fade-l':'')+(edge.r?' fade-r':'')+(scrub?' scrub':'')} ref=${tr} onScroll=${upd} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
-    <span class="dock-ind" ref=${indR} aria-hidden="true" style=${{width:ind.w+'px',transform:'translateX('+ind.x+'px)',opacity:ind.ok?1:0}}/>
-    ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${21}/></b><span>${t}</span></button>`)}
-  </div></nav>`}
+  const navR=React.useRef(null);
+  const tr=React.useRef(null);
+  const indR=React.useRef(null);
+  const goR=React.useRef(go);goR.current=go;
+  const tabsR=React.useRef(tabs);tabsR.current=tabs;
+  const sup=React.useRef(0);
+
+  const updEdge=()=>{
+    const n=tr.current;if(!n)return;
+    n.classList.toggle('fade-l',n.scrollLeft>6);
+    n.classList.toggle('fade-r',n.scrollLeft+n.clientWidth<n.scrollWidth-6);
+  };
+
+  const place=(smooth)=>{
+    const n=tr.current,ind=indR.current;if(!n||!ind)return;
+    const b=n.querySelector('button.on');if(!b)return;
+    const x=b.offsetLeft,w=b.offsetWidth;
+    ind.style.width=w+'px';
+    ind.style.transform='translate3d('+x+'px,0,0)';
+    ind.style.opacity='1';
+    const targetScroll=x-(n.clientWidth-w)/2;
+    if(smooth){
+      n.scrollTo({left:targetScroll,behavior:'smooth'});
+    }else{
+      n.scrollLeft=targetScroll;
+    }
+    updEdge();
+  };
+
+  useEffect(()=>{place(true)},[tab]);
+  useEffect(()=>{
+    const r=()=>place(false);
+    window.addEventListener('resize',r,{passive:true});
+    place(false);
+    return()=>window.removeEventListener('resize',r);
+  },[]);
+
+  useEffect(()=>{
+    const n=tr.current,navEl=navR.current,ind=indR.current;
+    if(!n||!navEl||!ind)return;
+    let sc=null,raf=0;
+
+    const setScrubUI=(on)=>{
+      n.classList.toggle('scrub',on);
+      navEl.classList.toggle('is-scrubbing',on);
+    };
+
+    const cacheMetrics=()=>{
+      const r=n.getBoundingClientRect();
+      const bs=[...n.querySelectorAll('button')];
+      const metrics=bs.map(b=>({el:b,left:b.offsetLeft,width:b.offsetWidth,mid:b.offsetLeft+b.offsetWidth/2}));
+      return {rect:r,metrics};
+    };
+
+    const peek=(metrics,k)=>{
+      for(let j=0;j<metrics.length;j++){
+        metrics[j].el.classList.toggle('peek',j===k);
+      }
+    };
+
+    const begin=()=>{
+      if(!sc)return;
+      const c=cacheMetrics();
+      sc.rect=c.rect;
+      sc.metrics=c.metrics;
+      sc.on=true;
+      sc.k=null;
+      setScrubUI(true);
+      try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}
+    };
+
+    const start=e=>{
+      const t=e.touches[0];
+      sc={x:t.clientX,y:t.clientY,cx:t.clientX,on:false,moved:false,k:null,rect:null,metrics:null};
+      if(e.target.closest&&e.target.closest('button.on'))begin();
+      else sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
+    };
+
+    const renderFrame=()=>{
+      raf=0;
+      if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
+      const {rect,metrics,cx}=sc;
+      const relX=cx-rect.left+n.scrollLeft;
+      let best=0,bd=1e9;
+      for(let i=0;i<metrics.length;i++){
+        const d=Math.abs(metrics[i].mid-relX);
+        if(d<bd){bd=d;best=i}
+      }
+      const target=metrics[best];
+      const minX=metrics[0].left;
+      const last=metrics[metrics.length-1];
+      const maxX=last.left+last.width-target.width;
+      const x=Math.max(minX,Math.min(maxX,relX-target.width/2));
+      ind.style.width=target.width+'px';
+      ind.style.transform='translate3d('+x+'px,0,0)';
+      if(best!==sc.k){
+        sc.k=best;
+        peek(metrics,best);
+        try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}
+      }
+      if(cx-rect.left<44){n.scrollLeft-=6;updEdge()}
+      else if(rect.right-cx<44){n.scrollLeft+=6;updEdge()}
+    };
+
+    const move=e=>{
+      if(!sc)return;
+      const t=e.touches[0];
+      sc.cx=t.clientX;
+      if(!sc.on){
+        if(Math.abs(t.clientX-sc.x)>8||Math.abs(t.clientY-sc.y)>8){
+          sc.moved=true;
+          clearTimeout(sc.hold);
+        }
+        return;
+      }
+      if(e.cancelable)e.preventDefault();
+      if(!raf)raf=requestAnimationFrame(renderFrame);
+    };
+
+    const end=()=>{
+      if(!sc)return;
+      clearTimeout(sc.hold);
+      if(raf){cancelAnimationFrame(raf);raf=0}
+      const was=sc.on,k=sc.k,metrics=sc.metrics;
+      sc=null;
+      if(was){
+        setScrubUI(false);
+        sup.current=Date.now();
+        if(metrics)peek(metrics,-1);
+        const tt=k===null?null:tabsR.current[k];
+        if(tt)goR.current(tt[0]);
+        requestAnimationFrame(()=>place(true));
+      }
+    };
+
+    let scrollRaf=0;
+    const onScroll=()=>{
+      if(!scrollRaf){
+        scrollRaf=requestAnimationFrame(()=>{scrollRaf=0;updEdge()});
+      }
+    };
+
+    n.addEventListener('scroll',onScroll,{passive:true});
+    n.addEventListener('touchstart',start,{passive:true});
+    n.addEventListener('touchmove',move,{passive:false});
+    n.addEventListener('touchend',end,{passive:true});
+    n.addEventListener('touchcancel',end,{passive:true});
+    return()=>{
+      n.removeEventListener('scroll',onScroll);
+      n.removeEventListener('touchstart',start);
+      n.removeEventListener('touchmove',move);
+      n.removeEventListener('touchend',end);
+      n.removeEventListener('touchcancel',end);
+    };
+  },[]);
+
+  return h`<nav class="dock" ref=${navR} aria-label="Main navigation">
+    <div class="dock-track fade-r" ref=${tr} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
+      <span class="dock-ind" ref=${indR} aria-hidden="true" style=${{opacity:0}}/>
+      ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${21}/></b><span>${t}</span></button>`)}
+    </div>
+  </nav>`;
+}
 
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[grade,setGrade]=useState(()=>{try{return localStorage.getItem('sp.grade')||'aurora'}catch(e){return 'aurora'}});const[intro,setIntro]=useState(()=>{try{if(sessionStorage.getItem('sp.intro'))return false;sessionStorage.setItem('sp.intro','1')}catch(e){}try{return !matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return true}});const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
- const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[showGlass,setShowGlass]=useState(false);const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});
+ const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);
+ const[showGlass,setShowGlass]=useState(false);const[closingGlass,setClosingGlass]=useState(false);const[popOrigin,setPopOrigin]=useState({x:'84%',y:'10%'});
+ const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});
  const[updateReady,setUpdateReady]=useState(false);const[checkingUpdate,setCheckingUpdate]=useState(false);const swRegRef=React.useRef(null);
  const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
 
- /* ---------- In-App Update Engine ---------- */
+ /* ---------- macOS Window Open / Close Controller ---------- */
+ const openGlassModal=(e)=>{
+  if(e&&e.currentTarget){
+   const r=e.currentTarget.getBoundingClientRect();
+   const px=Math.round(((r.left+r.width/2)/window.innerWidth)*100)+'%';
+   const py=Math.round(((r.top+r.height/2)/window.innerHeight)*100)+'%';
+   setPopOrigin({x:px,y:py});
+  }
+  setClosingGlass(false);
+  setShowGlass(true);
+  try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}
+ };
+ const closeGlassModal=()=>{
+  if(closingGlass)return;
+  setClosingGlass(true);
+  setTimeout(()=>{setShowGlass(false);setClosingGlass(false)},210);
+ };
+
+ /* ---------- In-App Update Engine (Auto Content Hash + Version Check) ---------- */
  useEffect(()=>{
   if(!('serviceWorker' in navigator))return;
   let refreshing=false;
@@ -287,30 +439,22 @@ function App({user}){
    if(!reg)return;
    swRegRef.current=reg;
    if(reg.waiting)setUpdateReady(true);
- ${showGlass&&h`<div class="macos-modal-overlay is-open" onClick=${e=>{if(e.target===e.currentTarget)setShowGlass(false)}}>
-  <div class="macos-window">
-   <div class="macos-titlebar">
-    <div class="traffic-lights">
-     <button class="dot dot-close" onClick=${()=>setShowGlass(false)} aria-label="Close"></button>
-     <button class="dot dot-minimize" aria-label="Minimize"></button>
-     <button class="dot dot-expand" aria-label="Expand"></button>
-    </div>
-    <div class="macos-title">Style & Glass Preferences</div>
-   </div>
-   <div class="macos-body">
-    <label class="setting-line">Colour grade</label>
-    <div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div>
-    <label class="setting-line">Appearance</label>
-    <select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select>
-    <label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label>
-    <input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/>
-    <label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label>
-    <div class="update-row"><div><b>App Update</b><div class="mu">Version v${APP_VERSION}</div></div><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Install Update':checkingUpdate?'Checking…':'Check for Update'}</button></div>
-    <p class="mu" style=${{marginTop:'14px'}}>Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p>
-   </div>
-  </div>
-</div>`}
+   reg.addEventListener('updatefound',()=>{
+    const nw=reg.installing;if(!nw)return;
+    nw.addEventListener('statechange',()=>{
+     if(nw.state==='installed'&&navigator.serviceWorker.controller)setUpdateReady(true);
+    });
+   });
+  }).catch(()=>{});
+  const poll=setInterval(()=>{swRegRef.current?.update().catch(()=>{})},120000);
+  return()=>{navigator.serviceWorker.removeEventListener('controllerchange',onControllerChange);clearInterval(poll)};
+ },[]);
 
+ const applyAppUpdate=async()=>{
+  toast('Installing update…');
+  try{
+   const reg=swRegRef.current||(await navigator.serviceWorker?.getRegistration());
+   if(reg&&reg.waiting){
     reg.waiting.postMessage({type:'SKIP_WAITING'});
     setTimeout(()=>window.location.reload(),600);
     return;
@@ -336,11 +480,20 @@ function App({user}){
      if(reg.waiting||reg.installing)foundNew=true;
     }
    }
-   const res=await fetch('app.js?_t='+Date.now(),{cache:'no-store'});
-   if(res.ok){
-    const txt=await res.text();
-    const m=txt.match(/APP_VERSION=['"]([^'"]+)['"]/);
-    if(m&&m[1]&&m[1]!==APP_VERSION)foundNew=true;
+   const [resApp, resCss]=await Promise.all([
+    fetch('app.js?_t='+Date.now(),{cache:'no-store'}),
+    fetch('style.css?_t='+Date.now(),{cache:'no-store'})
+   ]);
+   if(resApp.ok&&resCss.ok){
+    const txt=(await resApp.text())+(await resCss.text());
+    const hash=String(txt.length)+':'+Array.from(txt).reduce((s,c)=>((s<<5)-s+c.charCodeAt(0))|0,0);
+    const savedHash=localStorage.getItem('sp.buildHash');
+    if(!savedHash){
+     localStorage.setItem('sp.buildHash',hash);
+    }else if(savedHash!==hash){
+     localStorage.setItem('sp.buildHash',hash);
+     foundNew=true;
+    }
    }
    if(foundNew){
     setUpdateReady(true);
@@ -393,10 +546,33 @@ function App({user}){
  const exp=JSON.stringify(S);
  return h`<div class="w">
  ${updateReady&&h`<div class="update-banner"><div class="update-banner-info"><span class="update-pulse"/><div><b>New version available</b><div class="mu">Tap to update immediately without losing progress</div></div></div><button class="p" onClick=${applyAppUpdate}>Update now</button></div>`}
- <${Hero} S=${S} rt=${rt} nd=${nd} done=${done} NV=${NV} P=${P} user=${user} dark=${dark} onTheme=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')} onStyle=${()=>setShowGlass(!showGlass)} onLogout=${()=>window.SPFirebase?.signOut()}/>
- ${showGlass&&h`<div class="card glass-settings"><div class="top"><h2>Style & Glass</h2><button onClick=${()=>setShowGlass(false)}>Done</button></div><label class="setting-line">Colour grade</label><div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div><label class="setting-line">Appearance</label><select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select><label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label><input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/><label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label>
- <div class="update-row"><div><b>App Update</b><div class="mu">Version v${APP_VERSION}</div></div><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Install Update':checkingUpdate?'Checking…':'Check for Update'}</button></div>
- <p class="mu">Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p></div>`}
+ <${Hero} S=${S} rt=${rt} nd=${nd} done=${done} NV=${NV} P=${P} user=${user} dark=${dark} onTheme=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')} onStyle=${openGlassModal} onLogout=${()=>window.SPFirebase?.signOut()}/>
+ 
+ ${showGlass&&h`<div class=${'macos-modal-backdrop'+(closingGlass?' is-closing':'')} onClick=${e=>{if(e.target===e.currentTarget)closeGlassModal()}}>
+  <div class="macos-window" role="dialog" aria-modal="true" aria-label="Style and Glass Settings" style=${{'--pop-x':popOrigin.x,'--pop-y':popOrigin.y}}>
+   <div class="macos-titlebar">
+    <div class="macos-traffic">
+     <button type="button" class="macos-dot close" aria-label="Close" onClick=${closeGlassModal}>×</button>
+     <button type="button" class="macos-dot min" aria-label="Minimize" onClick=${closeGlassModal}>−</button>
+     <button type="button" class="macos-dot max" aria-label="Expand" onClick=${closeGlassModal}>+</button>
+    </div>
+    <div class="macos-title"><${Icon} name="palette" size=${15}/> <span>Style & Glass</span></div>
+    <button type="button" class="macos-done-btn" onClick=${closeGlassModal}>Done</button>
+   </div>
+   <div class="macos-body">
+    <label class="setting-line">Colour grade</label>
+    <div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div>
+    <label class="setting-line">Appearance</label>
+    <select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select>
+    <label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label>
+    <input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/>
+    <label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label>
+    <div class="update-row"><div><b>App Update</b><div class="mu">Version v${APP_VERSION}</div></div><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Install Update':checkingUpdate?'Checking…':'Check for Update'}</button></div>
+    <p class="mu" style=${{marginTop:12,marginBottom:0}}>Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p>
+   </div>
+  </div>
+ </div>`}
+
  <div class="card"><div class="bar"><i style=${{width:P+'%'}}/></div><div class="stats">
  <div><b><${CountUp} to=${NV}/></b><span class="mu">Total</span></div><div><b><${CountUp} to=${done}/></b><span class="mu">Done</span></div><div><b><${CountUp} to=${NV-done}/></b><span class="mu">Left</span></div><div><b><${CountUp} to=${rev}/></b><span class="mu">Revisit</span></div><div><b><${CountUp} to=${mvd}/></b><span class="mu">Moved</span></div></div>
  <div class="mu" style=${{textAlign:'center',marginTop:6}}>${P}% complete</div></div>
