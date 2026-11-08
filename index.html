@@ -3,15 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f4f5f9">
+<meta name="theme-color" content="#0b0b0d">
 <title>Study Planner</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest?v=5">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=5">
+<link rel="icon" type="image/png" href="icons/icon-192.png?v=5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Study Planner">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=5" id="sp-main-css">
+<script>
+  /* iPhone OTA Hot-Swap CSS Loader: Applies downloaded in-app updates immediately */
+  try {
+    var cachedCss = localStorage.getItem('sp.ota.css');
+    if (cachedCss) {
+      var st = document.createElement('style');
+      st.id = 'sp-ota-css';
+      st.textContent = cachedCss;
+      document.head.appendChild(st);
+    }
+  } catch (e) {}
+</script>
 </head>
 <body>
 <div id="root"></div>
@@ -23,7 +35,23 @@
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="sync.js"></script>
-<script src="app.js"></script>
-<script src="main.js"></script>
+<script>
+  /* iPhone OTA Hot-Swap JS Loader: Runs live updated app.js if downloaded, else falls back to local app.js */
+  (function() {
+    try {
+      var otaJs = localStorage.getItem('sp.ota.js');
+      if (otaJs && otaJs.indexOf('window.StudyPlannerApp') !== -1) {
+        var s = document.createElement('script');
+        s.text = otaJs;
+        document.body.appendChild(s);
+        var m = document.createElement('script');
+        m.src = 'main.js?v=' + (localStorage.getItem('sp.ota.ver') || '5');
+        document.body.appendChild(m);
+        return;
+      }
+    } catch (e) {}
+    document.write('<script src="app.js?v=5"><\/script><script src="main.js?v=5"><\/script>');
+  })();
+</script>
 </body>
 </html>
