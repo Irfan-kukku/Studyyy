@@ -239,81 +239,87 @@ function Icon({name,size=19,cls=''}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6
 /* ---------- 120fps Zero-Lag iPhone Instagram Floating Dock ---------- */
 function SwipeNav({tabs,tab,go}){
   const navR=React.useRef(null);
-  const tr=React.useRef(null);
-  const indR=React.useRef(null);
-  const goR=React.useRef(go);goR.current=go;
-  const tabsR=React.useRef(tabs);tabsR.current=tabs;
-  const sup=React.useRef(0);
+   /* ---------- iPhone-Compatible Live OTA In-App Update Engine ---------- */
+ const REMOTE_BASE = 'https://irfan-kukku.github.io/Studyyy/';
+ const getUpdateBase = () => {
+  const p = window.location.protocol;
+  return (p === 'capacitor:' || p === 'ionic:' || p === 'file:' || window.location.hostname === 'localhost')
+   ? REMOTE_BASE
+   : './';
+ };
 
-  const place=(smooth)=>{
-    const n=tr.current,ind=indR.current;if(!n||!ind)return;
-    const b=n.querySelector('button.on');if(!b)return;
-    const x=b.offsetLeft,w=b.offsetWidth;
-    ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/100).toFixed(4)})`;
-    ind.style.opacity='1';
-    const targetScroll=x-(n.clientWidth-w)/2;
-    if(smooth){
-      n.scrollTo({left:targetScroll,behavior:'smooth'});
-    }else{
-      n.scrollLeft=targetScroll;
+ const applyAppUpdate = async () => {
+  toast('Downloading update for iPhone…');
+  try {
+   const base = getUpdateBase();
+   const bust = '?_t=' + Date.now();
+   const [resApp, resCss] = await Promise.all([
+    fetch(base + 'app.js' + bust, { cache: 'no-store' }),
+    fetch(base + 'style.css' + bust, { cache: 'no-store' })
+   ]);
+
+   if (resApp.ok && resCss.ok) {
+    const [jsText, cssText] = await Promise.all([resApp.text(), resCss.text()]);
+    if (jsText.includes('window.StudyPlannerApp')) {
+     localStorage.setItem('sp.ota.js', jsText);
+     localStorage.setItem('sp.ota.css', cssText);
+     localStorage.setItem('sp.ota.ver', String(Date.now()));
+     const hash = String(jsText.length + cssText.length) + ':' + Array.from(jsText + cssText).reduce((s, c) => ((s << 5) - s + c.charCodeAt(0)) | 0, 0);
+     localStorage.setItem('sp.buildHash', hash);
     }
-  };
+   }
 
-  useEffect(()=>{place(true)},[tab]);
-  useEffect(()=>{
-    const r=()=>place(false);
-    window.addEventListener('resize',r,{passive:true});
-    place(false);
-    return()=>window.removeEventListener('resize',r);
-  },[]);
+   /* Unregister stale iOS Service Workers & clear WebKit caches */
+   if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+   }
+   if ('caches' in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+   }
+  } catch (e) {}
 
-  useEffect(()=>{
-    const n=tr.current,navEl=navR.current,ind=indR.current;
-    if(!n||!navEl||!ind)return;
-    let sc=null,raf=0;
+  /* Force iOS WebKit to navigate to a fresh cache-busted URL instead of a soft memory reload */
+  const cleanUrl = window.location.pathname + '?updated=' + Date.now();
+  window.location.replace(cleanUrl);
+ };
 
-    const setScrubUI=(on)=>{
-      n.classList.toggle('scrub',on);
-      navEl.classList.toggle('is-scrubbing',on);
-    };
+ const checkForAppUpdate = async () => {
+  if (checkingUpdate) return;
+  setCheckingUpdate(true);
+  try {
+   const base = getUpdateBase();
+   const bust = '?_t=' + Date.now();
+   const [resApp, resCss] = await Promise.all([
+    fetch(base + 'app.js' + bust, { cache: 'no-store' }),
+    fetch(base + 'style.css' + bust, { cache: 'no-store' })
+   ]);
 
-    const cacheMetrics=()=>{
-      const r=n.getBoundingClientRect();
-      const bs=[...n.querySelectorAll('button')];
-      const metrics=bs.map(b=>({el:b,left:b.offsetLeft,width:b.offsetWidth,mid:b.offsetLeft+b.offsetWidth/2}));
-      return {rect:r,metrics};
-    };
+   if (!resApp.ok || !resCss.ok) throw new Error('Fetch failed');
 
-    const peek=(metrics,k)=>{
-      for(let j=0;j<metrics.length;j++){
-        metrics[j].el.classList.toggle('peek',j===k);
-      }
-    };
+   const [jsText, cssText] = await Promise.all([resApp.text(), resCss.text()]);
+   const combined = jsText + cssText;
+   const remoteHash = String(combined.length) + ':' + Array.from(combined).reduce((s, c) => ((s << 5) - s + c.charCodeAt(0)) | 0, 0);
+   const savedHash = localStorage.getItem('sp.buildHash');
 
-    const begin=()=>{
-      if(!sc)return;
-      const c=cacheMetrics();
-      sc.rect=c.rect;
-      sc.metrics=c.metrics;
-      sc.on=true;
-      sc.k=null;
-      setScrubUI(true);
-      try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}
-    };
+   const verMatch = jsText.match(/APP_VERSION=['"]([^'"]+)['"]/);
+   const remoteVer = verMatch ? verMatch[1] : APP_VERSION;
 
-    const start=e=>{
-      const t=e.touches[0];
-      sc={x:t.clientX,y:t.clientY,cx:t.clientX,on:false,moved:false,k:null,rect:null,metrics:null};
-      sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
-    };
+   if ((savedHash && savedHash !== remoteHash) || remoteVer !== APP_VERSION) {
+    setUpdateReady(true);
+    toast('New update found! Tap Install Update.');
+   } else {
+    localStorage.setItem('sp.buildHash', remoteHash);
+    toast('You are on the latest version (v' + APP_VERSION + ')');
+   }
+  } catch (e) {
+   toast('Could not check for updates — check internet', 1);
+  } finally {
+   setCheckingUpdate(false);
+  }
+ };
 
-    const renderFrame=()=>{
-      raf=0;
-      if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
-      const {rect,metrics,cx}=sc;
-      const relX=cx-rect.left+n.scrollLeft;
-      let best=0,bd=1e9;
-      for(let i=0;i<metrics.length;i++){
         const d=Math.abs(metrics[i].mid-relX);
         if(d<bd){bd=d;best=i}
       }
