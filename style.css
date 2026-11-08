@@ -180,7 +180,8 @@ button.p:active,button.d:active{transform:scale(.94)}
 .grade-sw.on{border-color:var(--g1)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--g1) 45%,transparent)!important}
 
 /* ==========================================================================
-   IPHONE INSTAGRAM-STYLE FLOATING CAPSULE DOCK (120FPS GPU ACCELERATED)
+   ULTRA-SMOOTH NATIVE 120FPS IPHONE INSTAGRAM FLOATING DOCK
+   No CSS mask-image or scroll-listener repaints -> zero horizontal scroll lag
    ========================================================================== */
 nav.dock{
   position:fixed!important;
@@ -195,37 +196,26 @@ nav.dock{
   display:block!important;
   border-radius:999px!important;
   min-height:0;
-  background:rgba(14,15,22,.76)!important;
+  background:rgba(14,15,22,.82)!important;
   border:1px solid rgba(255,255,255,.14)!important;
   border-top:1px solid rgba(255,255,255,.26)!important;
   box-shadow:
-    0 20px 50px rgba(0,0,0,.55),
-    0 4px 16px rgba(0,0,0,.28),
+    0 18px 42px rgba(0,0,0,.52),
     inset 0 1px 0 rgba(255,255,255,.18)!important;
-  -webkit-backdrop-filter:blur(28px) saturate(210%)!important;
-  backdrop-filter:blur(28px) saturate(210%)!important;
-  animation:ig-dock-enter .5s cubic-bezier(.16,1,.3,1) backwards;
-  transition:transform .28s cubic-bezier(.16,1,.3,1),box-shadow .28s ease;
-  will-change:transform;
-  contain:layout paint style;
+  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
+  backdrop-filter:blur(20px) saturate(180%)!important;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
   z-index:9995;
 }
 :root[data-theme=light] nav.dock{
-  background:rgba(255,255,255,.82)!important;
+  background:rgba(255,255,255,.86)!important;
   border:1px solid rgba(0,0,0,.08)!important;
-  border-top:1px solid rgba(255,255,255,.95)!important;
-  box-shadow:
-    0 18px 44px rgba(20,25,40,.18),
-    0 3px 12px rgba(20,25,40,.08),
-    inset 0 1px 0 #fff!important;
+  border-top:1px solid #fff!important;
+  box-shadow:0 16px 38px rgba(20,25,40,.16),inset 0 1px 0 #fff!important;
 }
 nav.dock.is-scrubbing{
-  transform:translate3d(-50%,-3px,0) scale(1.025)!important;
-  box-shadow:0 26px 60px rgba(0,0,0,.65),0 0 24px color-mix(in srgb,var(--ac) 25%,transparent),inset 0 1px 0 rgba(255,255,255,.32)!important;
-}
-@keyframes ig-dock-enter{
-  0%{opacity:0;transform:translate3d(-50%,36px,0) scale(.92)}
-  100%{opacity:1;transform:translate3d(-50%,0,0) scale(1)}
+  transform:translate3d(-50%,-2px,0) scale(1.02)!important;
 }
 .dock-track{
   position:relative;
@@ -235,19 +225,17 @@ nav.dock.is-scrubbing{
   overflow-x:auto;
   overflow-y:hidden;
   padding:6px 8px;
-  overscroll-behavior-x:contain;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
   scrollbar-width:none;
   touch-action:pan-x;
   user-select:none;
   -webkit-user-select:none;
+  transform:translate3d(0,0,0);
 }
 .dock-track::-webkit-scrollbar{display:none}
-.dock-track.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px);mask-image:linear-gradient(90deg,transparent 0,#000 22px)}
-.dock-track.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent 100%)}
-.dock-track.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%)}
 
-/* GPU-accelerated sliding capsule indicator (zero layout thrashing) */
+/* Lightweight GPU-only pill indicator */
 .dock-ind{
   position:absolute;
   left:0;
@@ -256,28 +244,28 @@ nav.dock.is-scrubbing{
   border-radius:999px;
   pointer-events:none;
   z-index:0;
-  background:linear-gradient(145deg,rgba(255,255,255,.15),rgba(255,255,255,.05));
+  background:rgba(255,255,255,.13);
   border:1px solid rgba(255,255,255,.16);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 14px rgba(0,0,0,.22);
-  will-change:transform,width;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
   transform:translate3d(0,0,0);
-  transition:transform .36s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1),opacity .18s ease;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transition:transform .32s cubic-bezier(.16,1,.3,1),width .26s cubic-bezier(.16,1,.3,1);
 }
 :root[data-theme=light] .dock-ind{
-  background:linear-gradient(145deg,rgba(0,0,0,.07),rgba(0,0,0,.03));
+  background:rgba(0,0,0,.07);
   border:1px solid rgba(0,0,0,.07);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 3px 10px rgba(0,0,0,.05);
 }
 .dock-track.scrub .dock-ind{
   transition:none!important;
-  background:linear-gradient(145deg,color-mix(in srgb,var(--ac) 34%,rgba(255,255,255,.16)),color-mix(in srgb,var(--ac2) 18%,transparent));
-  border-color:color-mix(in srgb,var(--ac) 52%,rgba(255,255,255,.3));
+  background:color-mix(in srgb,var(--ac) 30%,rgba(255,255,255,.14));
+  border-color:color-mix(in srgb,var(--ac) 50%,rgba(255,255,255,.3));
 }
 nav.dock button{
   position:relative;
   z-index:1;
   flex:0 0 auto!important;
-  min-width:60px!important;
+  min-width:62px!important;
   height:50px!important;
   padding:5px 11px 4px!important;
   border:0!important;
@@ -296,33 +284,26 @@ nav.dock button{
   -webkit-tap-highlight-color:transparent;
   user-select:none;
   -webkit-user-select:none;
-  transition:color .18s ease,transform .2s cubic-bezier(.16,1,.3,1)!important;
-  will-change:transform;
+  transform:translate3d(0,0,0);
+  transition:color .15s ease,transform .18s ease!important;
 }
 nav.dock button b{
   display:grid!important;
   place-items:center;
   font-size:0!important;
   line-height:1;
-  transition:transform .26s cubic-bezier(.2,1.4,.35,1)!important;
-  will-change:transform;
+  transition:transform .22s cubic-bezier(.2,1.4,.35,1)!important;
 }
-nav.dock button span{
-  line-height:1;
-  transition:opacity .18s ease,transform .18s ease;
-}
-/* Instagram iOS Active State + Subtle Indicator Dot */
+nav.dock button span{line-height:1}
 nav.dock button.on,
 nav.dock button.peek{
   color:var(--tx)!important;
 }
 nav.dock button.on b{
-  transform:translate3d(0,-1px,0) scale(1.14)!important;
+  transform:translate3d(0,-1px,0) scale(1.13)!important;
   color:var(--tx);
 }
-nav.dock button.on b svg{
-  stroke-width:2.25;
-}
+nav.dock button.on b svg{stroke-width:2.2}
 nav.dock button.on::after{
   content:"";
   position:absolute;
@@ -332,24 +313,18 @@ nav.dock button.on::after{
   height:4px;
   border-radius:50%;
   background:var(--ac);
-  box-shadow:0 0 8px var(--ac);
-  transform:translate3d(-50%,0,0) scale(1);
-  animation:ig-dot-pop .28s cubic-bezier(.2,1.6,.35,1) backwards;
-}
-@keyframes ig-dot-pop{
-  0%{transform:translate3d(-50%,0,0) scale(0);opacity:0}
-  100%{transform:translate3d(-50%,0,0) scale(1);opacity:1}
+  transform:translate3d(-50%,0,0);
 }
 nav.dock button.peek b{
-  transform:translate3d(0,-3px,0) scale(1.26)!important;
+  transform:translate3d(0,-3px,0) scale(1.24)!important;
   color:var(--ac);
 }
 nav.dock button:active{
-  transform:scale(.88)!important;
+  transform:scale(.9)!important;
 }
 
 /* ==========================================================================
-   MACOS WINDOW POP-UP MODAL FOR STYLE & GLASS
+   TRUE MACOS GENIE / SPRING LAUNCH WINDOW ANIMATION (FROM ICON ORIGIN)
    ========================================================================== */
 .macos-modal-backdrop{
   position:fixed;
@@ -359,94 +334,102 @@ nav.dock button:active{
   align-items:center;
   justify-content:center;
   padding:18px 14px;
-  background:rgba(4,6,14,.48);
-  -webkit-backdrop-filter:blur(12px) saturate(140%);
-  backdrop-filter:blur(12px) saturate(140%);
-  animation:macos-backdrop-in .26s cubic-bezier(.16,1,.3,1) forwards;
+  perspective:1100px;
+  background:rgba(4,6,14,.52);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  animation:macos-bg-fade-in .28s ease-out forwards;
 }
 .macos-modal-backdrop.is-closing{
-  animation:macos-backdrop-out .22s cubic-bezier(.4,0,.2,1) forwards;
+  animation:macos-bg-fade-out .32s ease-in forwards;
   pointer-events:none;
 }
-@keyframes macos-backdrop-in{
+@keyframes macos-bg-fade-in{
   from{opacity:0}
   to{opacity:1}
 }
-@keyframes macos-backdrop-out{
+@keyframes macos-bg-fade-out{
   from{opacity:1}
   to{opacity:0}
 }
 
 .macos-window{
   position:relative;
-  width:min(100%, 430px);
-  max-height:min(84vh, 650px);
+  width:min(100%, 420px);
+  max-height:min(84vh, 640px);
   display:flex;
   flex-direction:column;
   border-radius:22px;
   overflow:hidden;
   background:linear-gradient(
-    145deg,
-    color-mix(in srgb,var(--glass-strong) 92%,rgba(35,38,58,.88)),
-    color-mix(in srgb,var(--glass) 88%,rgba(16,18,30,.92))
+    150deg,
+    color-mix(in srgb,var(--glass-strong) 94%,rgba(34,37,56,.94)),
+    color-mix(in srgb,var(--glass) 90%,rgba(16,18,30,.96))
   );
-  border:1px solid color-mix(in srgb,var(--ac) 38%,rgba(255,255,255,.28));
-  border-top:1px solid rgba(255,255,255,.52);
+  border:1px solid color-mix(in srgb,var(--ac) 42%,rgba(255,255,255,.32));
+  border-top:1px solid rgba(255,255,255,.58);
   box-shadow:
-    0 32px 80px rgba(0,0,0,.62),
-    0 0 0 0.5px rgba(255,255,255,.18),
-    inset 0 1px 0 rgba(255,255,255,.35);
-  -webkit-backdrop-filter:blur(36px) saturate(200%);
-  backdrop-filter:blur(36px) saturate(200%);
+    0 34px 90px rgba(0,0,0,.68),
+    0 0 0 0.5px rgba(255,255,255,.22),
+    inset 0 1px 0 rgba(255,255,255,.4);
+  -webkit-backdrop-filter:blur(30px) saturate(190%);
+  backdrop-filter:blur(30px) saturate(190%);
   color:var(--tx);
-  transform-origin:var(--pop-x, 82%) var(--pop-y, 12%);
-  animation:macos-window-open .38s cubic-bezier(.16,1.18,.3,1) forwards;
-  will-change:transform,opacity;
+  /* Anchors the Genie expansion directly to the Palette button coordinates */
+  transform-origin:var(--pop-x, 86%) var(--pop-y, 8%);
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  animation:macos-genie-open .48s cubic-bezier(.16,1.22,.3,1) forwards;
 }
 :root[data-theme=light] .macos-window{
-  background:linear-gradient(
-    145deg,
-    rgba(255,255,255,.92),
-    rgba(246,248,255,.86)
-  );
+  background:linear-gradient(150deg,rgba(255,255,255,.95),rgba(244,247,255,.92));
   border:1px solid rgba(0,0,0,.1);
   border-top:1px solid #fff;
-  box-shadow:
-    0 28px 70px rgba(20,30,60,.26),
-    0 0 0 0.5px rgba(0,0,0,.08),
-    inset 0 1px 0 #fff;
+  box-shadow:0 30px 75px rgba(20,30,60,.28),0 0 0 0.5px rgba(0,0,0,.08),inset 0 1px 0 #fff;
 }
 .macos-modal-backdrop.is-closing .macos-window{
-  animation:macos-window-close .22s cubic-bezier(.4,0,.2,1) forwards;
+  animation:macos-genie-close .32s cubic-bezier(.55,.04,.68,.19) forwards;
 }
 
-@keyframes macos-window-open{
+/* Authentic macOS Genie / Launchpad non-uniform stretch + spring settle */
+@keyframes macos-genie-open{
   0%{
     opacity:0;
-    transform:scale(.22) translate3d(18px,-28px,0);
-    filter:blur(10px);
+    transform:scale3d(.04,.02,1) rotateX(28deg) rotateZ(6deg) skewX(-10deg);
+    border-radius:60px;
   }
-  70%{
+  42%{
     opacity:1;
-    transform:scale(1.02) translate3d(0,0,0);
-    filter:blur(0);
+    transform:scale3d(.88,1.05,1) rotateX(-5deg) rotateZ(-1deg) skewX(2deg);
+    border-radius:26px;
+  }
+  72%{
+    opacity:1;
+    transform:scale3d(1.03,.985,1) rotateX(1.5deg) rotateZ(0deg) skewX(0deg);
+    border-radius:22px;
   }
   100%{
     opacity:1;
-    transform:scale(1) translate3d(0,0,0);
-    filter:blur(0);
+    transform:scale3d(1,1,1) rotateX(0deg) rotateZ(0deg) skewX(0deg);
+    border-radius:22px;
   }
 }
-@keyframes macos-window-close{
+
+/* Sucks the window back into the Palette icon on close */
+@keyframes macos-genie-close{
   0%{
     opacity:1;
-    transform:scale(1) translate3d(0,0,0);
-    filter:blur(0);
+    transform:scale3d(1,1,1) rotateX(0deg) rotateZ(0deg) skewX(0deg);
+  }
+  30%{
+    opacity:.95;
+    transform:scale3d(1.02,.92,1) rotateX(-6deg) skewX(4deg);
   }
   100%{
     opacity:0;
-    transform:scale(.26) translate3d(16px,-24px,0);
-    filter:blur(8px);
+    transform:scale3d(.03,.015,1) rotateX(30deg) rotateZ(8deg) skewX(-12deg);
+    border-radius:60px;
   }
 }
 
@@ -455,7 +438,7 @@ nav.dock button:active{
   align-items:center;
   justify-content:space-between;
   padding:13px 16px;
-  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.02));
   border-bottom:1px solid color-mix(in srgb,var(--tx) 11%,transparent);
   user-select:none;
 }
