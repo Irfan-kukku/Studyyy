@@ -287,22 +287,30 @@ function App({user}){
    if(!reg)return;
    swRegRef.current=reg;
    if(reg.waiting)setUpdateReady(true);
-   reg.addEventListener('updatefound',()=>{
-    const nw=reg.installing;if(!nw)return;
-    nw.addEventListener('statechange',()=>{
-     if(nw.state==='installed'&&navigator.serviceWorker.controller)setUpdateReady(true);
-    });
-   });
-  }).catch(()=>{});
-  const poll=setInterval(()=>{swRegRef.current?.update().catch(()=>{})},120000);
-  return()=>{navigator.serviceWorker.removeEventListener('controllerchange',onControllerChange);clearInterval(poll)};
- },[]);
+ ${showGlass&&h`<div class="macos-modal-overlay is-open" onClick=${e=>{if(e.target===e.currentTarget)setShowGlass(false)}}>
+  <div class="macos-window">
+   <div class="macos-titlebar">
+    <div class="traffic-lights">
+     <button class="dot dot-close" onClick=${()=>setShowGlass(false)} aria-label="Close"></button>
+     <button class="dot dot-minimize" aria-label="Minimize"></button>
+     <button class="dot dot-expand" aria-label="Expand"></button>
+    </div>
+    <div class="macos-title">Style & Glass Preferences</div>
+   </div>
+   <div class="macos-body">
+    <label class="setting-line">Colour grade</label>
+    <div class="grades">${GRADES.map(([id,name,c1,c2])=>h`<button key=${id} class=${'grade-sw'+(grade===id?' on':'')} onClick=${()=>setGrade(id)} style=${{'--g1':c1,'--g2':c2}}><i/><span>${name}</span></button>`)}</div>
+    <label class="setting-line">Appearance</label>
+    <select style=${{width:"100%"}} value=${dark||"system"} onChange=${e=>setDark(e.target.value==="system"?null:e.target.value)}><option value="system">System · Adaptive</option><option value="dark">Dark</option><option value="light">Light</option></select>
+    <label class="setting-line">Glass intensity <b>${glassIntensity}%</b></label>
+    <input class="glass-range" type="range" min="0" max="100" value=${glassIntensity} onInput=${e=>setGlassIntensity(+e.target.value)}/>
+    <label class="setting-line"><input type="checkbox" checked=${soundOn} onChange=${e=>setSoundOn(e.target.checked)}/> Play completion and uncheck audio</label>
+    <div class="update-row"><div><b>App Update</b><div class="mu">Version v${APP_VERSION}</div></div><button class="p" onClick=${updateReady?applyAppUpdate:checkForAppUpdate} disabled=${checkingUpdate}><${Icon} name="refresh" size=${16} cls=${checkingUpdate?'spin-icon':''}/> ${updateReady?'Install Update':checkingUpdate?'Checking…':'Check for Update'}</button></div>
+    <p class="mu" style=${{marginTop:'14px'}}>Reduce Transparency on iPhone is respected automatically where the browser exposes that accessibility preference.</p>
+   </div>
+  </div>
+</div>`}
 
- const applyAppUpdate=async()=>{
-  toast('Installing update…');
-  try{
-   const reg=swRegRef.current||(await navigator.serviceWorker?.getRegistration());
-   if(reg&&reg.waiting){
     reg.waiting.postMessage({type:'SKIP_WAITING'});
     setTimeout(()=>window.location.reload(),600);
     return;
