@@ -1,5 +1,5 @@
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
-const APP_VERSION='2.4.2';
+const APP_VERSION='2.4.3';
 /*LOGIC*/
 const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
 const HUE=[200,260,25,150,45,120,330,290,5,175,225];const hue=s=>HUE[s]!==undefined?HUE[s]:(s*137)%360;
@@ -239,87 +239,81 @@ function Icon({name,size=19,cls=''}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6
 /* ---------- 120fps Zero-Lag iPhone Instagram Floating Dock ---------- */
 function SwipeNav({tabs,tab,go}){
   const navR=React.useRef(null);
-   /* ---------- iPhone-Compatible Live OTA In-App Update Engine ---------- */
- const REMOTE_BASE = 'https://irfan-kukku.github.io/Studyyy/';
- const getUpdateBase = () => {
-  const p = window.location.protocol;
-  return (p === 'capacitor:' || p === 'ionic:' || p === 'file:' || window.location.hostname === 'localhost')
-   ? REMOTE_BASE
-   : './';
- };
+  const tr=React.useRef(null);
+  const indR=React.useRef(null);
+  const goR=React.useRef(go);goR.current=go;
+  const tabsR=React.useRef(tabs);tabsR.current=tabs;
+  const sup=React.useRef(0);
 
- const applyAppUpdate = async () => {
-  toast('Downloading update for iPhone…');
-  try {
-   const base = getUpdateBase();
-   const bust = '?_t=' + Date.now();
-   const [resApp, resCss] = await Promise.all([
-    fetch(base + 'app.js' + bust, { cache: 'no-store' }),
-    fetch(base + 'style.css' + bust, { cache: 'no-store' })
-   ]);
-
-   if (resApp.ok && resCss.ok) {
-    const [jsText, cssText] = await Promise.all([resApp.text(), resCss.text()]);
-    if (jsText.includes('window.StudyPlannerApp')) {
-     localStorage.setItem('sp.ota.js', jsText);
-     localStorage.setItem('sp.ota.css', cssText);
-     localStorage.setItem('sp.ota.ver', String(Date.now()));
-     const hash = String(jsText.length + cssText.length) + ':' + Array.from(jsText + cssText).reduce((s, c) => ((s << 5) - s + c.charCodeAt(0)) | 0, 0);
-     localStorage.setItem('sp.buildHash', hash);
+  const place=(smooth)=>{
+    const n=tr.current,ind=indR.current;if(!n||!ind)return;
+    const b=n.querySelector('button.on');if(!b)return;
+    const x=b.offsetLeft,w=b.offsetWidth;
+    ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/100).toFixed(4)})`;
+    ind.style.opacity='1';
+    const targetScroll=x-(n.clientWidth-w)/2;
+    if(smooth){
+      n.scrollTo({left:targetScroll,behavior:'smooth'});
+    }else{
+      n.scrollLeft=targetScroll;
     }
-   }
+  };
 
-   /* Unregister stale iOS Service Workers & clear WebKit caches */
-   if ('serviceWorker' in navigator) {
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map(r => r.unregister()));
-   }
-   if ('caches' in window) {
-    const keys = await caches.keys();
-    await Promise.all(keys.map(k => caches.delete(k)));
-   }
-  } catch (e) {}
+  useEffect(()=>{place(true)},[tab]);
+  useEffect(()=>{
+    const r=()=>place(false);
+    window.addEventListener('resize',r,{passive:true});
+    place(false);
+    return()=>window.removeEventListener('resize',r);
+  },[]);
 
-  /* Force iOS WebKit to navigate to a fresh cache-busted URL instead of a soft memory reload */
-  const cleanUrl = window.location.pathname + '?updated=' + Date.now();
-  window.location.replace(cleanUrl);
- };
+  useEffect(()=>{
+    const n=tr.current,navEl=navR.current,ind=indR.current;
+    if(!n||!navEl||!ind)return;
+    let sc=null,raf=0;
 
- const checkForAppUpdate = async () => {
-  if (checkingUpdate) return;
-  setCheckingUpdate(true);
-  try {
-   const base = getUpdateBase();
-   const bust = '?_t=' + Date.now();
-   const [resApp, resCss] = await Promise.all([
-    fetch(base + 'app.js' + bust, { cache: 'no-store' }),
-    fetch(base + 'style.css' + bust, { cache: 'no-store' })
-   ]);
+    const setScrubUI=(on)=>{
+      n.classList.toggle('scrub',on);
+      navEl.classList.toggle('is-scrubbing',on);
+    };
 
-   if (!resApp.ok || !resCss.ok) throw new Error('Fetch failed');
+    const cacheMetrics=()=>{
+      const r=n.getBoundingClientRect();
+      const bs=[...n.querySelectorAll('button')];
+      const metrics=bs.map(b=>({el:b,left:b.offsetLeft,width:b.offsetWidth,mid:b.offsetLeft+b.offsetWidth/2}));
+      return {rect:r,metrics};
+    };
 
-   const [jsText, cssText] = await Promise.all([resApp.text(), resCss.text()]);
-   const combined = jsText + cssText;
-   const remoteHash = String(combined.length) + ':' + Array.from(combined).reduce((s, c) => ((s << 5) - s + c.charCodeAt(0)) | 0, 0);
-   const savedHash = localStorage.getItem('sp.buildHash');
+    const peek=(metrics,k)=>{
+      for(let j=0;j<metrics.length;j++){
+        metrics[j].el.classList.toggle('peek',j===k);
+      }
+    };
 
-   const verMatch = jsText.match(/APP_VERSION=['"]([^'"]+)['"]/);
-   const remoteVer = verMatch ? verMatch[1] : APP_VERSION;
+    const begin=()=>{
+      if(!sc)return;
+      const c=cacheMetrics();
+      sc.rect=c.rect;
+      sc.metrics=c.metrics;
+      sc.on=true;
+      sc.k=null;
+      setScrubUI(true);
+      try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}
+    };
 
-   if ((savedHash && savedHash !== remoteHash) || remoteVer !== APP_VERSION) {
-    setUpdateReady(true);
-    toast('New update found! Tap Install Update.');
-   } else {
-    localStorage.setItem('sp.buildHash', remoteHash);
-    toast('You are on the latest version (v' + APP_VERSION + ')');
-   }
-  } catch (e) {
-   toast('Could not check for updates — check internet', 1);
-  } finally {
-   setCheckingUpdate(false);
-  }
- };
+    const start=e=>{
+      const t=e.touches[0];
+      sc={x:t.clientX,y:t.clientY,cx:t.clientX,on:false,moved:false,k:null,rect:null,metrics:null};
+      sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
+    };
 
+    const renderFrame=()=>{
+      raf=0;
+      if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
+      const {rect,metrics,cx}=sc;
+      const relX=cx-rect.left+n.scrollLeft;
+      let best=0,bd=1e9;
+      for(let i=0;i<metrics.length;i++){
         const d=Math.abs(metrics[i].mid-relX);
         if(d<bd){bd=d;best=i}
       }
@@ -419,7 +413,7 @@ function App({user}){
   setTimeout(()=>{setShowGlass(false);setClosingGlass(false)},280);
  };
 
- /* ---------- In-App Update Engine (Auto Content Hash + Version Check) ---------- */
+ /* ---------- Safe iPhone & PWA In-App Update Engine ---------- */
  useEffect(()=>{
   if(!('serviceWorker' in navigator))return;
   let refreshing=false;
@@ -443,18 +437,19 @@ function App({user}){
  const applyAppUpdate=async()=>{
   toast('Installing update…');
   try{
-   const reg=swRegRef.current||(await navigator.serviceWorker?.getRegistration());
-   if(reg&&reg.waiting){
-    reg.waiting.postMessage({type:'SKIP_WAITING'});
-    setTimeout(()=>window.location.reload(),600);
-    return;
+   localStorage.removeItem('sp.ota.js');
+   localStorage.removeItem('sp.ota.css');
+   if('serviceWorker' in navigator){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r=>r.unregister()));
    }
    if('caches' in window){
     const keys=await caches.keys();
     await Promise.all(keys.map(k=>caches.delete(k)));
    }
   }catch(e){}
-  window.location.reload();
+  const baseUrl=window.location.href.split('?')[0];
+  window.location.replace(baseUrl+'?v='+Date.now());
  };
 
  const checkForAppUpdate=async()=>{
