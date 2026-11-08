@@ -462,3 +462,173 @@ nav.dock button:active{transform:scale(.88)!important}
   .hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *,.sp-logo-halo,.sp-logo-orbit,.sp-logo-ripple,.sp-logo-medallion,.sp-logo-sheen{animation:none!important}
   .hero-ring{transition:none}
 }
+/* ===== INSTAGRAM-STYLE INSTANT BOTTOM DOCK (ZERO LAG) ===== */
+nav.dock {
+  position: fixed !important;
+  left: 12px !important;
+  right: 12px !important;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  width: auto !important;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: block !important;
+  border-radius: 26px !important;
+  background: rgba(24, 24, 28, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  z-index: 9999;
+  touch-action: none;
+}
+
+.dock-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+.dock-track::-webkit-scrollbar { display: none; }
+
+nav.dock button {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto !important;
+  min-width: 52px !important;
+  max-width: 72px !important;
+  padding: 6px 4px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px !important;
+  color: var(--mu) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease !important;
+}
+
+nav.dock button b {
+  display: grid !important;
+  place-items: center;
+  font-size: 0 !important;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+nav.dock button.on {
+  color: var(--tx) !important;
+}
+
+nav.dock button.on b {
+  transform: scale(1.15) translateY(-1px) !important;
+  color: var(--ac) !important;
+}
+
+nav.dock button:active {
+  transform: scale(0.92);
+}
+
+.dock-ind {
+  display: none !important;
+}
+
+
+/* ===== macOS WINDOW POP-UP ANIMATION FOR STYLE & GLASS ===== */
+.macos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 16px;
+}
+
+.macos-modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.macos-window {
+  width: min(100%, 460px);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, rgba(32, 35, 48, 0.88), rgba(18, 20, 30, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  backdrop-filter: blur(36px) saturate(190%);
+  color: var(--tx);
+  transform: scale(0.82) translateY(16px);
+  opacity: 0;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-overflow-scrolling: touch;
+}
+
+.macos-modal-overlay.is-open .macos-window {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.macos-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--glass-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.traffic-lights {
+  display: flex;
+  gap: 7px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.dot-close { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.2); }
+.dot-minimize { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.2); }
+.dot-expand { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.2); }
+
+.macos-title {
+  flex: 1;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-right: 52px;
+}
+
+.macos-body {
+  padding: 20px;
+}
