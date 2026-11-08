@@ -265,7 +265,7 @@ function tickReminders(S){
 
 function Icon({name,size=19,cls=''}){const paths={home:'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',chart:'M4 19V5m0 14h17M8 15l3-4 3 2 6-7',calendar:'M4 5h16v16H4z M8 3v4m8-4v4M4 10h16',list:'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',plus:'M12 5v14M5 12h14',shuffle:'m16 3 4 4-4 4M4 7h3c5 0 5 10 10 10h3m-4-4 4 4-4 4M4 17h3c1.5 0 2.5-1 3.3-2.2',moon:'M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z',database:'M12 3c5 0 9 1.3 9 3s-4 3-9 3-9-1.3-9-3 4-3 9-3z M3 6v12c0 1.7 4 3 9 3s9-1.3 9-3V6 M3 12c0 1.7 4 3 9 3s9-1.3 9-3',book:'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z M4 5.5v16.5',spark:'m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z',sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',logout:'M10 17l5-5-5-5m5 5H3m10-9h7v18h-7',flame:'M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.2.8 2 1.6 2.4C10.4 8 11 5.5 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.3-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z M7.5 11h.01M10 7.5h.01M14.5 7.5h.01',clock:'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',check:'M5 12.5l4.5 4.5L19 7',refresh:'M21 12a9 9 0 0 0-15.5-6.3L3 8m0-5v5h5m-5 4a9 9 0 0 0 15.5 6.3L21 16m0 5v-5h-5'};return h`<svg class=${'ui-icon'+(cls?' '+cls:'')} width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${paths[name]||paths.spark}/></svg>`}
 
-/* ---------- 120fps Zero-Lag iPhone Instagram Floating Dock ---------- */
+/* ---------- iOS 26 / WhatsApp Liquid Glass Lens Magnifier Dock ---------- */
 function SwipeNav({tabs,tab,go}){
   const navR=React.useRef(null);
   const tr=React.useRef(null);
@@ -273,12 +273,13 @@ function SwipeNav({tabs,tab,go}){
   const goR=React.useRef(go);goR.current=go;
   const tabsR=React.useRef(tabs);tabsR.current=tabs;
   const sup=React.useRef(0);
+  const BASE_W=82;
 
   const place=(smooth)=>{
     const n=tr.current,ind=indR.current;if(!n||!ind)return;
     const b=n.querySelector('button.on');if(!b)return;
     const x=b.offsetLeft,w=b.offsetWidth;
-    ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/100).toFixed(4)})`;
+    ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/BASE_W).toFixed(4)}) scaleY(1)`;
     ind.style.opacity='1';
     const targetScroll=x-(n.clientWidth-w)/2;
     if(smooth){
@@ -304,7 +305,6 @@ function SwipeNav({tabs,tab,go}){
     const setScrubUI=(on)=>{
       n.classList.toggle('scrub',on);
       navEl.classList.toggle('is-scrubbing',on);
-      n.style.overflowX=on?'hidden':'';
     };
 
     const cacheMetrics=()=>{
@@ -321,13 +321,15 @@ function SwipeNav({tabs,tab,go}){
     };
 
     const begin=()=>{
-      if(!sc)return;
+      if(!sc||sc.on)return;
       const c=cacheMetrics();
       sc.rect=c.rect;
       sc.metrics=c.metrics;
       sc.on=true;
       sc.k=null;
       sc.sl=n.scrollLeft;
+      sc.lastX=sc.cx;
+      sc.vel=0;
       sc.max=Math.max(0,n.scrollWidth-n.clientWidth);
       setScrubUI(true);
       if(!raf)raf=requestAnimationFrame(renderFrame);
@@ -336,15 +338,20 @@ function SwipeNav({tabs,tab,go}){
 
     const start=e=>{
       const t=e.touches[0];
-      sc={x:t.clientX,y:t.clientY,cx:t.clientX,on:false,moved:false,k:null,rect:null,metrics:null};
-      sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
+      sc={x:t.clientX,y:t.clientY,cx:t.clientX,lastX:t.clientX,vel:0,on:false,moved:false,k:null,rect:null,metrics:null};
+      /* Inflate immediately if touching the active pill, or after 90ms anywhere on the bar */
+      if(e.target.closest&&e.target.closest('button.on')){
+        sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},35);
+      }else{
+        sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},95);
+      }
     };
 
     const renderFrame=()=>{
       raf=0;
       if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
       const {rect,metrics}=sc;
-      const EDGE=60,MAXV=13;
+      const EDGE=56,MAXV=11;
       const lx=sc.cx-rect.left,rx=rect.right-sc.cx;
       let v=0;
       if(lx<EDGE)v=-Math.min(MAXV,((EDGE-lx)/EDGE)*MAXV);
@@ -353,6 +360,14 @@ function SwipeNav({tabs,tab,go}){
         const nsl=Math.max(0,Math.min(sc.max,sc.sl+v));
         if(nsl!==sc.sl){sc.sl=nsl;n.scrollLeft=nsl}
       }
+
+      /* Elastic liquid velocity stretch (stretches wider when sliding fast) */
+      const dx=sc.cx-sc.lastX;
+      sc.lastX=sc.cx;
+      sc.vel=sc.vel*0.72 + Math.abs(dx)*0.28;
+      const stretchX=Math.min(1.26, 1.12 + sc.vel*0.012);
+      const squashY=Math.max(0.92, 1.0 - sc.vel*0.004);
+
       const relX=sc.cx-rect.left+sc.sl;
       let best=0,bd=1e9;
       for(let i=0;i<metrics.length;i++){
@@ -360,15 +375,18 @@ function SwipeNav({tabs,tab,go}){
         if(d<bd){bd=d;best=i}
       }
       const target=metrics[best];
-      const minX=metrics[0].left;
+      const lensW=target.width*stretchX;
+      const minX=metrics[0].left-6;
       const last=metrics[metrics.length-1];
-      const maxX=last.left+last.width-target.width;
-      const x=Math.max(minX,Math.min(maxX,relX-target.width/2));
-      ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(target.width/100).toFixed(4)})`;
+      const maxX=last.left+last.width-lensW+6;
+      /* Smoothly follow finger position directly like the WhatsApp lens */
+      const x=Math.max(minX,Math.min(maxX,relX-lensW/2));
+      ind.style.transform=`translate3d(${x.toFixed(1)}px,0,0) scaleX(${(lensW/BASE_W).toFixed(4)}) scaleY(${squashY.toFixed(3)})`;
+
       if(best!==sc.k){
         sc.k=best;
         peek(metrics,best);
-        try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}
+        try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}
       }
       raf=requestAnimationFrame(renderFrame);
     };
@@ -376,13 +394,20 @@ function SwipeNav({tabs,tab,go}){
     const move=e=>{
       if(!sc)return;
       const t=e.touches[0];
+      const dx=t.clientX-sc.x, dy=t.clientY-sc.y;
       sc.cx=t.clientX;
       if(!sc.on){
-        if(Math.abs(t.clientX-sc.x)>7||Math.abs(t.clientY-sc.y)>7){
+        /* If user drags horizontally on the active button, immediately inflate into the liquid lens */
+        if(e.target.closest&&e.target.closest('button.on')&&Math.abs(dx)>4&&Math.abs(dx)>Math.abs(dy)){
+          clearTimeout(sc.hold);
+          begin();
+        }else if(Math.abs(dx)>9||Math.abs(dy)>9){
           sc.moved=true;
           clearTimeout(sc.hold);
+          return;
+        }else{
+          return;
         }
-        return;
       }
       if(e.cancelable)e.preventDefault();
     };
