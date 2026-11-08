@@ -180,90 +180,6 @@ button.p:active,button.d:active{transform:scale(.94)}
 .grade-sw.on{border-color:var(--g1)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--g1) 45%,transparent)!important}
 
 /* ==========================================================================
-   ULTRA-SMOOTH NATIVE 120FPS FLOATING DOCK BASE
-   ========================================================================== */
-nav.dock{
-  position:fixed!important;
-  left:50%!important;
-  right:auto!important;
-  bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
-  transform:translate3d(-50%,0,0)!important;
-  width:min(calc(100vw - 24px), 464px)!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:hidden!important;
-  display:block!important;
-  border-radius:999px!important;
-  min-height:0;
-  animation:ig-dock-enter .45s cubic-bezier(.16,1,.3,1) backwards;
-  will-change:transform;
-  z-index:9995;
-}
-@keyframes ig-dock-enter{
-  0%{opacity:0;transform:translate3d(-50%,32px,0) scale(.94)}
-  100%{opacity:1;transform:translate3d(-50%,0,0) scale(1)}
-}
-
-.dock-track{
-  position:relative;
-  display:flex;
-  align-items:center;
-  overflow-x:auto;
-  overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior-x:contain;
-  scrollbar-width:none;
-  touch-action:pan-x;
-  user-select:none;
-  -webkit-user-select:none;
-  transform:translateZ(0);
-}
-.dock-track::-webkit-scrollbar{display:none}
-
-.dock-ind{
-  position:absolute;
-  left:0;
-  width:100px;
-  transform-origin:0 50%;
-  border-radius:999px;
-  pointer-events:none;
-  z-index:0;
-  will-change:transform,opacity;
-  transform:translate3d(0,0,0) scaleX(.6);
-}
-.dock-track.scrub .dock-ind{
-  transition:none!important;
-}
-
-nav.dock button{
-  position:relative;
-  z-index:1;
-  flex:0 0 auto!important;
-  border:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  border-radius:999px!important;
-  display:flex!important;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  -webkit-tap-highlight-color:transparent;
-  -webkit-backdrop-filter:none!important;
-  backdrop-filter:none!important;
-  user-select:none;
-  -webkit-user-select:none;
-  transition:color .16s ease,transform .16s ease!important;
-}
-nav.dock button b{
-  display:grid!important;
-  place-items:center;
-  font-size:0!important;
-  line-height:1;
-  transition:transform .24s cubic-bezier(.2,1.4,.35,1)!important;
-}
-nav.dock button span{line-height:1}
-
-/* ==========================================================================
    AUTHENTIC MACOS GENIE / SPRING WINDOW LAUNCH ANIMATION
    ========================================================================== */
 .macos-modal-backdrop{
@@ -658,16 +574,6 @@ nav.dock button span{line-height:1}
 .intro-skip{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);opacity:0;animation:fade-up .6s ease 1.2s forwards}
 @keyframes intro-out{to{opacity:0;transform:scale(1.06);filter:blur(10px);visibility:hidden;pointer-events:none}}
 
-@media(prefers-reduced-transparency:reduce){
-  .card,.auth-card,.row,nav.dock,button,select,input,textarea,.toast,.completion-pop,.hero,.update-banner,.macos-window{
-    background:var(--card)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  .hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *,.sp-logo-halo,.sp-logo-orbit,.sp-logo-ripple,.sp-logo-medallion,.sp-logo-sheen,.macos-window,.macos-modal-backdrop{animation:none!important}
-  .hero-ring{transition:none}
-}
-
 /* ===== ROUND TICK CHECKLIST ===== */
 .video-row{border-left:0;padding:13px 12px 13px 14px;gap:10px}
 .video-row .m{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
@@ -700,8 +606,6 @@ nav.dock button span{line-height:1}
 @keyframes gate-fade{from{opacity:0}to{opacity:1}}
 @keyframes celebrate-in-gate{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
 
-.dock-track.scrub{scroll-behavior:auto!important;-webkit-overflow-scrolling:auto}
-
 /* ==========================================================================
    iOS 26 / WHATSAPP LIQUID GLASS LENS MAGNIFIER DOCK
    Matches the exact oversized chromatic lens bubble from the iPhone video
@@ -713,6 +617,10 @@ nav.dock{
   bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
   transform:translate3d(-50%,0,0)!important;
   width:min(calc(100vw - 24px), 460px)!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+  min-height:0;
   border-radius:999px!important;
   /* Allow the liquid lens bubble to bulge above & below the bar when dragging */
   overflow:visible!important;
@@ -726,8 +634,14 @@ nav.dock{
     inset 0 1px 0 rgba(255,255,255,.22)!important;
   -webkit-backdrop-filter:blur(32px) saturate(195%)!important;
   backdrop-filter:blur(32px) saturate(195%)!important;
+  animation:ig-dock-enter .45s cubic-bezier(.16,1,.3,1) backwards;
   transition:transform .3s cubic-bezier(.16,1.2,.3,1), box-shadow .3s ease!important;
+  will-change:transform;
   z-index:9995;
+}
+@keyframes ig-dock-enter{
+  0%{opacity:0;transform:translate3d(-50%,32px,0) scale(.94)}
+  100%{opacity:1;transform:translate3d(-50%,0,0) scale(1)}
 }
 
 :root[data-theme=light] nav.dock{
@@ -740,7 +654,6 @@ nav.dock{
     inset 0 1px 0 #fff!important;
 }
 
-/* Track keeps horizontal scroll but lets the lens overflow vertically */
 .dock-track{
   position:relative;
   display:flex;
@@ -752,10 +665,15 @@ nav.dock{
   border-radius:999px;
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x;
+  user-select:none;
+  -webkit-user-select:none;
+  transform:translateZ(0);
 }
 .dock-track::-webkit-scrollbar{display:none}
+.dock-track.scrub{scroll-behavior:auto!important;-webkit-overflow-scrolling:auto}
 
-/* When scrubbing, let the lens bulge outside the top & bottom of the bar */
 nav.dock.is-scrubbing .dock-track{
   overflow:visible!important;
 }
@@ -771,6 +689,8 @@ nav.dock.is-scrubbing .dock-track{
   pointer-events:none;
   z-index:2;
   transform-origin:0 50%;
+  will-change:transform,opacity;
+  transform:translate3d(0,0,0) scaleX(.85);
   background:rgba(255,255,255,.15)!important;
   border:1px solid rgba(255,255,255,.12)!important;
   box-shadow:inset 0 1px 0.5px rgba(255,255,255,.28)!important;
@@ -831,7 +751,6 @@ nav.dock.is-scrubbing .dock-track{
 
 /* 2. ACTIVE DRAGGING / SCRUBBING WATER-DROPLET LENS STATE (00:01, 00:05, 00:08) */
 .dock-track.scrub .dock-ind{
-  /* Bulges 9px above and 9px below the dock bar just like WhatsApp iOS 26 */
   top:-9px!important;
   bottom:-9px!important;
   z-index:4!important;
@@ -840,7 +759,6 @@ nav.dock.is-scrubbing .dock-track{
     bottom .24s cubic-bezier(.18,1.45,.32,1),
     background .15s ease,
     box-shadow .18s ease!important;
-  /* Crystal-clear refractive water-droplet interior */
   background:
     radial-gradient(85% 110% at 50% 15%, rgba(255,255,255,.16) 0%, rgba(255,255,255,.02) 55%, rgba(0,0,0,.12) 100%)!important;
   border:1px solid rgba(255,255,255,.45)!important;
@@ -864,14 +782,28 @@ nav.dock.is-scrubbing .dock-track{
 nav.dock button{
   position:relative;
   z-index:3!important;
+  flex:0 0 auto!important;
   min-width:72px!important;
   height:54px!important;
   padding:6px 10px 5px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border-radius:999px!important;
+  display:flex!important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   gap:3px!important;
   font-size:10.5px!important;
   font-weight:600!important;
   letter-spacing:-.01em!important;
   color:rgba(255,255,255,.68)!important;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  user-select:none;
+  -webkit-user-select:none;
   transition:color .16s ease, transform .22s cubic-bezier(.2,1.4,.35,1)!important;
 }
 
@@ -879,12 +811,19 @@ nav.dock button{
   color:rgba(20,25,38,.62)!important;
 }
 
+nav.dock button b{
+  display:grid!important;
+  place-items:center;
+  font-size:0!important;
+  line-height:1;
+}
+nav.dock button span{line-height:1}
+
 nav.dock button b,
 nav.dock button span{
   transition:transform .22s cubic-bezier(.2,1.45,.35,1), color .16s ease, filter .18s ease!important;
 }
 
-/* Resting selected tab (clean crisp white/accent like WhatsApp) */
 nav.dock button.on{
   color:#ffffff!important;
   font-weight:700!important;
@@ -903,7 +842,6 @@ nav.dock button.on::after{
   display:none!important;
 }
 
-/* Magnified tab inside the moving glass lens (00:01, 00:06, 00:08) */
 nav.dock button.peek{
   color:#ffffff!important;
   font-weight:700!important;
@@ -917,4 +855,17 @@ nav.dock button.peek b{
 }
 nav.dock button.peek span{
   transform:translate3d(0,1px,0) scale(1.12)!important;
+}
+nav.dock button:active{
+  transform:scale(.92)!important;
+}
+
+@media(prefers-reduced-transparency:reduce){
+  .card,.auth-card,.row,nav.dock,button,select,input,textarea,.toast,.completion-pop,.hero,.update-banner,.macos-window{
+    background:var(--card)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *,.sp-logo-halo,.sp-logo-orbit,.sp-logo-ripple,.sp-logo-medallion,.sp-logo-sheen,.macos-window,.macos-modal-backdrop{animation:none!important}
+  .hero-ring{transition:none}
 }
