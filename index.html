@@ -5,16 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
 <title>Study Planner</title>
-<link rel="manifest" href="manifest.webmanifest?v=9">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=9">
-<link rel="icon" type="image/png" href="icons/icon-192.png?v=9">
+<link rel="manifest" href="manifest.webmanifest?v=11">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=11">
+<link rel="icon" type="image/png" href="icons/icon-192.png?v=11">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Study Planner">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 <div id="root"></div>
+<script>
+  /* Native app (APK/IPA) live-update: the installed app bundles an old copy of the site.
+     On launch, if the hosted site is reachable, load it instead (always latest). Offline -> bundled copy. */
+  (function(){
+    var REMOTE = 'https://irfan-kukku.github.io/Studyyy/';
+    try {
+      var p = location.protocol, h = location.hostname;
+      var native = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+                   p === 'capacitor:' || (p === 'https:' && h === 'localhost');
+      if (!native || location.href.indexOf(REMOTE) === 0) return;
+      var root = document.documentElement;
+      root.style.visibility = 'hidden';
+      var done = false;
+      var show = function(){ if (done) return; done = true; root.style.visibility = ''; };
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function(){ if (ctl) ctl.abort(); show(); }, 3000);
+      fetch(REMOTE + 'sw.js?_t=' + Date.now(), { cache: 'no-store', mode: 'cors', signal: ctl ? ctl.signal : undefined })
+        .then(function(r){
+          clearTimeout(timer);
+          if (r && r.ok && !done) { done = true; location.replace(REMOTE); } else { show(); }
+        })
+        .catch(function(){ clearTimeout(timer); show(); });
+    } catch (e) { document.documentElement.style.visibility = ''; }
+  })();
+</script>
 <script>
   /* Clean up any broken OTA cache that could block booting */
   try {
@@ -28,9 +53,9 @@
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=9"></script>
-<script src="sync.js?v=9"></script>
-<script src="app.js?v=9"></script>
-<script src="main.js?v=9"></script>
+<script src="firebase-config.js?v=11"></script>
+<script src="sync.js?v=11"></script>
+<script src="app.js?v=11"></script>
+<script src="main.js?v=11"></script>
 </body>
 </html>
