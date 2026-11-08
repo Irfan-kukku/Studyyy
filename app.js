@@ -304,6 +304,7 @@ function SwipeNav({tabs,tab,go}){
     const setScrubUI=(on)=>{
       n.classList.toggle('scrub',on);
       navEl.classList.toggle('is-scrubbing',on);
+      n.style.overflowX=on?'hidden':'';
     };
 
     const cacheMetrics=()=>{
@@ -326,7 +327,10 @@ function SwipeNav({tabs,tab,go}){
       sc.metrics=c.metrics;
       sc.on=true;
       sc.k=null;
+      sc.sl=n.scrollLeft;
+      sc.max=Math.max(0,n.scrollWidth-n.clientWidth);
       setScrubUI(true);
+      if(!raf)raf=requestAnimationFrame(renderFrame);
       try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}
     };
 
@@ -339,8 +343,17 @@ function SwipeNav({tabs,tab,go}){
     const renderFrame=()=>{
       raf=0;
       if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
-      const {rect,metrics,cx}=sc;
-      const relX=cx-rect.left+n.scrollLeft;
+      const {rect,metrics}=sc;
+      const EDGE=60,MAXV=13;
+      const lx=sc.cx-rect.left,rx=rect.right-sc.cx;
+      let v=0;
+      if(lx<EDGE)v=-Math.min(MAXV,((EDGE-lx)/EDGE)*MAXV);
+      else if(rx<EDGE)v=Math.min(MAXV,((EDGE-rx)/EDGE)*MAXV);
+      if(v){
+        const nsl=Math.max(0,Math.min(sc.max,sc.sl+v));
+        if(nsl!==sc.sl){sc.sl=nsl;n.scrollLeft=nsl}
+      }
+      const relX=sc.cx-rect.left+sc.sl;
       let best=0,bd=1e9;
       for(let i=0;i<metrics.length;i++){
         const d=Math.abs(metrics[i].mid-relX);
@@ -357,8 +370,7 @@ function SwipeNav({tabs,tab,go}){
         peek(metrics,best);
         try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}
       }
-      if(cx-rect.left<44){n.scrollLeft-=6}
-      else if(rect.right-cx<44){n.scrollLeft+=6}
+      raf=requestAnimationFrame(renderFrame);
     };
 
     const move=e=>{
@@ -373,7 +385,6 @@ function SwipeNav({tabs,tab,go}){
         return;
       }
       if(e.cancelable)e.preventDefault();
-      if(!raf)raf=requestAnimationFrame(renderFrame);
     };
 
     const end=()=>{
