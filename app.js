@@ -281,7 +281,7 @@ function SwipeNav({tabs,tab,go}){
     const x=b.offsetLeft,w=b.offsetWidth;
     ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/BASE_W).toFixed(4)}) scaleY(1)`;
     ind.style.opacity='1';
-    const targetScroll=x-(n.clientWidth-w)/2;
+    const targetScroll=Math.max(0,Math.min(n.scrollWidth-n.clientWidth,x-(n.clientWidth-w)/2));
     if(smooth){
       n.scrollTo({left:targetScroll,behavior:'smooth'});
     }else{
@@ -338,30 +338,27 @@ function SwipeNav({tabs,tab,go}){
 
     const start=e=>{
       const t=e.touches[0];
-      sc={x:t.clientX,y:t.clientY,cx:t.clientX,lastX:t.clientX,vel:0,on:false,moved:false,k:null,rect:null,metrics:null};
-      /* Inflate immediately if touching the active pill, or after 90ms anywhere on the bar */
-      if(e.target.closest&&e.target.closest('button.on')){
-        sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},35);
-      }else{
-        sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},95);
-      }
+      const onActive=Boolean(e.target.closest&&e.target.closest('button.on'));
+      sc={x:t.clientX,y:t.clientY,cx:t.clientX,lastX:t.clientX,vel:0,on:false,moved:false,onActive,k:null,rect:null,metrics:null};
+      /* Only auto-inflate on hold if finger stays still, so quick flicks scroll all 8 tabs normally */
+      sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},onActive?110:200);
     };
 
     const renderFrame=()=>{
       raf=0;
       if(!sc||!sc.on||!sc.metrics||!sc.metrics.length)return;
       const {rect,metrics}=sc;
-      const EDGE=56,MAXV=11;
+      /* Wide 78px edge auto-scroll zone so dragging the lens right smoothly reveals Tools, Catch-up, and Data */
+      const EDGE=78,MAXV=14;
       const lx=sc.cx-rect.left,rx=rect.right-sc.cx;
       let v=0;
-      if(lx<EDGE)v=-Math.min(MAXV,((EDGE-lx)/EDGE)*MAXV);
-      else if(rx<EDGE)v=Math.min(MAXV,((EDGE-rx)/EDGE)*MAXV);
+      if(lx<EDGE)v=-Math.min(MAXV,Math.pow((EDGE-lx)/EDGE,1.15)*MAXV);
+      else if(rx<EDGE)v=Math.min(MAXV,Math.pow((EDGE-rx)/EDGE,1.15)*MAXV);
       if(v){
         const nsl=Math.max(0,Math.min(sc.max,sc.sl+v));
         if(nsl!==sc.sl){sc.sl=nsl;n.scrollLeft=nsl}
       }
 
-      /* Elastic liquid velocity stretch (stretches wider when sliding fast) */
       const dx=sc.cx-sc.lastX;
       sc.lastX=sc.cx;
       sc.vel=sc.vel*0.72 + Math.abs(dx)*0.28;
@@ -376,10 +373,9 @@ function SwipeNav({tabs,tab,go}){
       }
       const target=metrics[best];
       const lensW=target.width*stretchX;
-      const minX=metrics[0].left-6;
+      const minX=metrics[0].left-4;
       const last=metrics[metrics.length-1];
-      const maxX=last.left+last.width-lensW+6;
-      /* Smoothly follow finger position directly like the WhatsApp lens */
+      const maxX=last.left+last.width-lensW+4;
       const x=Math.max(minX,Math.min(maxX,relX-lensW/2));
       ind.style.transform=`translate3d(${x.toFixed(1)}px,0,0) scaleX(${(lensW/BASE_W).toFixed(4)}) scaleY(${squashY.toFixed(3)})`;
 
@@ -397,11 +393,12 @@ function SwipeNav({tabs,tab,go}){
       const dx=t.clientX-sc.x, dy=t.clientY-sc.y;
       sc.cx=t.clientX;
       if(!sc.on){
-        /* If user drags horizontally on the active button, immediately inflate into the liquid lens */
-        if(e.target.closest&&e.target.closest('button.on')&&Math.abs(dx)>4&&Math.abs(dx)>Math.abs(dy)){
+        /* If user starts dragging directly on the active tab pill, inflate lens immediately */
+        if(sc.onActive&&Math.abs(dx)>5&&Math.abs(dx)>Math.abs(dy)){
           clearTimeout(sc.hold);
           begin();
-        }else if(Math.abs(dx)>9||Math.abs(dy)>9){
+        }else if(Math.abs(dx)>7||Math.abs(dy)>7){
+          /* Otherwise let native horizontal scroll glide across all 8 tabs */
           sc.moved=true;
           clearTimeout(sc.hold);
           return;
@@ -443,7 +440,7 @@ function SwipeNav({tabs,tab,go}){
   return h`<nav class="dock" ref=${navR} aria-label="Main navigation">
     <div class="dock-track" ref=${tr} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
       <span class="dock-ind" ref=${indR} aria-hidden="true" style=${{opacity:0}}/>
-      ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${24}/></b><span>${t}</span></button>`)}
+      ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${22}/></b><span>${t}</span></button>`)}
     </div>
   </nav>`;
 }
