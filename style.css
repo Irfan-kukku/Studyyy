@@ -760,3 +760,15 @@ nav.dock button:active{
 .tick .sp.s0{--a:0deg}.tick .sp.s1{--a:60deg}.tick .sp.s2{--a:120deg}.tick .sp.s3{--a:180deg}.tick .sp.s4{--a:240deg}.tick .sp.s5{--a:300deg}
 @keyframes tick-spark{0%{opacity:1;transform:rotate(var(--a)) translateY(-10px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(-21px) scale(.3)}}
 @media(prefers-reduced-motion:reduce){.tick .sp{display:none}.tick.pop .tick-svg{animation:none}}
+
+/* ===== GATE POPUP ===== */
+.gate-ov{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.45);animation:gate-fade .2s ease both}
+.gate-card{width:min(100%,360px);max-height:80vh;overflow:auto;padding:20px 18px 16px;border-radius:24px;background:var(--glass-strong,var(--card));border:1px solid var(--glass-line,var(--ln));color:var(--tx);box-shadow:0 24px 80px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);animation:celebrate-in-gate .35s cubic-bezier(.16,1.3,.35,1) both}
+.gate-card h3{margin:0 0 6px;font-size:18px}.gate-card p{margin:0 0 12px}
+.gate-item{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--ln)}
+.gate-item:last-child{border-bottom:0}.gate-item .m{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.gate-item b{font-size:15.5px}
+.gate-item.locked{opacity:.45}.gate-item.done b{text-decoration:line-through;opacity:.6}
+.tick.locked{pointer-events:none}
+.gate-actions{display:flex;gap:8px;margin-top:14px}.gate-actions button{flex:1;min-height:44px}
+@keyframes gate-fade{from{opacity:0}to{opacity:1}}
+@keyframes celebrate-in-gate{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}

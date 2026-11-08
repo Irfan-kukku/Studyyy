@@ -167,12 +167,24 @@ const SFX=(()=>{const AC=window.AudioContext||window.webkitAudioContext;let ctx=
   try{const a=pool[n]||(pool[n]=new Audio(n));a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}};
  return{play,warm}})();
 /* ---------- Round tick (checklist style) ---------- */
-function Tick({on,onToggle}){const[pop,setPop]=useState(false);const prev=React.useRef(on);
+function Tick({on,onToggle,locked}){const[pop,setPop]=useState(false);const prev=React.useRef(on);
  useEffect(()=>{if(on&&!prev.current){prev.current=on;setPop(true);const t=setTimeout(()=>setPop(false),750);return()=>clearTimeout(t)}prev.current=on;if(!on)setPop(false)},[on]);
- return h`<button type="button" role="checkbox" aria-checked=${on} aria-label=${on?'Mark not started':'Mark completed'} class=${'tick'+(on?' on':'')+(pop?' pop':'')} onClick=${e=>{e.stopPropagation();onToggle(!on)}}>
+ return h`<button type="button" role="checkbox" aria-checked=${on} aria-label=${on?'Mark not started':'Mark completed'} disabled=${!!locked} class=${'tick'+(on?' on':'')+(pop?' pop':'')+(locked?' locked':'')} onClick=${e=>{e.stopPropagation();onToggle(!on)}}>
   <svg viewBox="0 0 28 28" class="tick-svg" aria-hidden="true"><circle class="tk-ring" cx="14" cy="14" r="11.5"/><path class="tk-check" d="M8.6 14.4l3.8 3.8 7-7.6"/></svg>
   ${pop&&[0,1,2,3,4,5].map(k=>h`<i class=${'sp s'+k} key=${k}/>`)}</button>`}
 
+/* ---------- Gate: finish earlier videos first ---------- */
+function GateModal({S,i,act,onClose}){
+ const[ids]=useState(()=>chIds(i).slice(0,V[i][2]-1).filter(j=>!watched(S,j)));
+ const allDone=ids.every(j=>watched(S,j));const first=ids.find(j=>!watched(S,j));
+ return h`<div class="gate-ov" onClick=${onClose}><div class="gate-card" role="dialog" aria-modal="true" onClick=${e=>e.stopPropagation()}>
+  <h3>${allDone?'All earlier videos done \u2713':'Watch earlier videos first'}</h3>
+  <p class="mu">${allDone?'You can now complete Video '+V[i][2]+'.':'Video '+V[i][2]+' of '+V[i][1]+' is locked. Watch these in order and tick each one:'}</p>
+  <div class="gate-list">${ids.map(j=>{const d=watched(S,j);return h`<div class=${'gate-item'+(d?' done':'')+(!d&&j!==first?' locked':'')} key=${j}>
+   <div class="m"><b>Video ${V[j][2]}</b><span class="mu">${where(S,j)}</span></div>
+   <${Tick} on=${d} locked=${d||j!==first} onToggle=${()=>act(op.set,j,'Completed')}/></div>`})}</div>
+  <div class="gate-actions"><button class="p" onClick=${()=>{onClose();if(allDone)act(op.set,i,'Completed')}}>${allDone?'Mark Video '+V[i][2]+' complete':'Close'}</button>${allDone&&h`<button onClick=${onClose}>Not yet</button>`}</div>
+ </div></div>`}
 function VRow({S,i,act,time,today=false}){const ref=React.useRef(null);const g=React.useRef(null);const done=stat(S,i)==='Completed';
  const mv=(x,anim)=>{const n=ref.current;if(!n)return;n.style.transition=anim?'transform .4s cubic-bezier(.2,.9,.3,1.25)':'none';n.style.transform=x?'translateX('+x+'px)':'';if(n.parentNode)n.parentNode.style.setProperty('--sw',String(Math.min(1,x/96)))};
  const ts=e=>{if(e.target.closest&&e.target.closest('select,input,button'))return;const t=e.touches[0];g.current={x:t.clientX,y:t.clientY,on:false,dead:false,dx:0}};
@@ -402,7 +414,7 @@ function SwipeNav({tabs,tab,go}){
 
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[grade,setGrade]=useState(()=>{try{return localStorage.getItem('sp.grade')||'aurora'}catch(e){return 'aurora'}});const[intro,setIntro]=useState(()=>{try{if(sessionStorage.getItem('sp.intro'))return false;sessionStorage.setItem('sp.intro','1')}catch(e){}try{return !matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return true}});const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
- const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);
+ const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);const[gate,setGate]=useState(null);
  const[showGlass,setShowGlass]=useState(false);const[closingGlass,setClosingGlass]=useState(false);
  const[popDelta,setPopDelta]=useState({dx:'130px',dy:'-230px'});
  const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});
@@ -529,11 +541,12 @@ function App({user}){
  useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.18+(glassIntensity/100)*.48));document.documentElement.style.setProperty('--glass-saturation',(125+glassIntensity*.8)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.24)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
  useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
- const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;const r=f(S,...a);if(r.err){toast(r.err,1);return false}
+ const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;if(f===op.set&&W.includes(a[1])&&!earlierOK(S,a[0])){setGate(a[0]);return false}
+  const r=f(S,...a);if(r.err){toast(r.err,1);return false}
   const after=f===op.set?stat(r.S,a[0]):null;const changed=f===op.set&&before!==after;
   if(changed&&soundOn){if(after==='Completed')SFX.play('completion.mp3');else if(before==='Completed')SFX.play('uncheck.mp3')}
   setS(r.S);toast(r.ok||'Saved');
-  if(changed&&after==='Completed'){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450)}
+  if(changed&&after==='Completed'&&!gate){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450)}
   return true};
  const all=[...Array(NV).keys()];const done=cnt(S,all);const P=pct(done,NV);
  const rev=all.filter(i=>stat(S,i)==='Revisit').length,mvd=all.filter(i=>stat(S,i)==='Moved').length;
@@ -634,6 +647,7 @@ function App({user}){
  <div class="card"><h2>Change log</h2>${S.log.length?S.log.slice(0,80).map((l,k)=>h`<div key=${k} class="mu" style=${{padding:'4px 0',borderBottom:'1px solid var(--ln)'}}>${new Date(l.t).toLocaleString()} — ${l.m}</div>`):h`<span class="mu">No changes yet.</span>`}</div>`}
  </div>
 
+ ${gate!==null&&h`<${GateModal} S=${S} i=${gate} act=${act} onClose=${()=>setGate(null)}/>`}
  ${celebrate&&h`<div class="completion-pop"><div class="completion-burst">✓</div><b>Video completed</b><span>Excellent progress. Keep going.</span></div>`}
  <${SwipeNav} tabs=${tabs} tab=${tab} go=${goTab}/>
  ${msg&&h`<div class=${'toast'+(msg.e?' e':'')}>${msg.m}</div>`}
