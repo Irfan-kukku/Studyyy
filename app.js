@@ -1,5 +1,5 @@
 const {useState,useEffect}=React;const h=htm.bind(React.createElement);
-const APP_VERSION='2.4.1';
+const APP_VERSION='2.4.2';
 /*LOGIC*/
 const SUBJ=["History", "Geography", "Life Science", "Arts & Culture", "Simple Arithmetic", "Current Affairs", "Economics", "Chemistry", "Constitution", "Mental Ability", "Physics"];const V=[[0,"General",1],[1,"Chapter 2",1],[2,"Chapter 2",1],[0,"General",2],[3,"General",1],[1,"Chapter 2",2],[2,"Chapter 2",2],[1,"Chapter 2",3],[3,"General",2],[4,"Chapter 4",1],[0,"General",3],[3,"General",3],[4,"Chapter 4",2],[0,"General",4],[1,"Chapter 2",4],[0,"General",5],[4,"Chapter 4",3],[3,"General",4],[4,"Chapter 1",1],[5,"General",1],[1,"Chapter 1",1],[2,"Chapter 2",3],[0,"General",6],[1,"Chapter 2",5],[0,"General",7],[5,"General",2],[6,"General",1],[3,"General",5],[7,"Chapter 1",1],[8,"Chapter 1",1],[0,"General",8],[2,"Chapter 2",4],[4,"Chapter 1",2],[1,"Chapter 1",2],[1,"Chapter 2",6],[3,"General",6],[6,"General",2],[2,"Chapter 2",5],[0,"General",9],[5,"General",3],[8,"Chapter 1",2],[4,"Chapter 1",3],[1,"Chapter 2",7],[4,"Chapter 1",4],[8,"Chapter 1",3],[1,"Chapter 1",3],[2,"Chapter 1",1],[4,"Chapter 3",1],[3,"General",7],[7,"Chapter 1",2],[4,"Chapter 2",1],[0,"General",10],[7,"Chapter 1",3],[2,"Chapter 2",6],[9,"Chapter 3",1],[2,"Chapter 2",7],[1,"Chapter 1",4],[1,"Chapter 2",8],[8,"Chapter 1",4],[1,"Chapter 2",9],[2,"Chapter 2",8],[4,"Chapter 1",5],[4,"Chapter 4",4],[2,"Chapter 3",1],[10,"Chapter 2",1],[4,"Chapter 4",5],[6,"General",3],[4,"Chapter 3",2],[2,"Chapter 3",2],[8,"Chapter 1",5],[3,"General",8],[5,"General",4],[3,"General",9],[2,"Chapter 2",9],[2,"Chapter 1",2],[4,"Chapter 4",6],[0,"General",11],[4,"Chapter 4",7],[0,"General",12],[5,"General",5],[4,"Chapter 2",2],[4,"Chapter 4",8],[9,"Chapter 3",2],[5,"General",6],[4,"Chapter 2",3],[4,"Chapter 3",3],[0,"General",13],[1,"Chapter 1",5],[4,"Chapter 1",6],[1,"Chapter 2",10],[8,"Chapter 2",1],[4,"Chapter 4",9],[4,"Chapter 2",4],[8,"Chapter 3",1],[1,"Chapter 2",11],[8,"Chapter 2",2],[1,"Chapter 2",12],[10,"Chapter 4",1],[4,"Chapter 4",10],[10,"Chapter 2",2],[8,"Chapter 3",2],[8,"Chapter 1",6],[10,"Chapter 2",3],[8,"Chapter 1",7],[10,"Chapter 4",2],[10,"Chapter 2",4],[7,"Chapter 1",4],[9,"Chapter 3",3],[6,"General",4],[0,"General",14],[8,"Chapter 4",1],[3,"General",10],[4,"Chapter 3",4],[2,"Chapter 3",3],[3,"General",11],[2,"Chapter 2",10],[2,"Chapter 3",4],[2,"Chapter 2",11],[7,"Chapter 1",5],[4,"Chapter 1",7],[7,"Chapter 1",6],[9,"Chapter 3",4],[4,"Chapter 3",5],[6,"General",5],[10,"Chapter 3",1],[6,"General",6],[9,"Chapter 3",5],[10,"Chapter 3",2],[2,"Chapter 2",12],[7,"Chapter 1",7],[8,"Chapter 4",2],[8,"Chapter 1",8],[4,"Chapter 4",11],[8,"Chapter 3",3],[5,"General",7],[4,"Chapter 1",8],[9,"Chapter 1",1],[2,"Chapter 1",3],[10,"Chapter 3",3],[4,"Chapter 2",5],[1,"Chapter 2",13],[9,"Chapter 3",6],[6,"General",7],[1,"Chapter 2",14],[6,"General",8],[8,"Chapter 2",3],[1,"Chapter 2",15],[4,"Chapter 3",6],[1,"Chapter 2",16],[9,"Chapter 1",2],[10,"Chapter 4",3],[10,"Chapter 2",5],[10,"Chapter 3",4],[2,"Chapter 3",5],[5,"General",8],[1,"Chapter 1",6],[2,"Chapter 1",4],[8,"Chapter 4",3],[2,"Chapter 1",5],[4,"Chapter 1",9],[0,"General",15],[9,"Chapter 1",3],[1,"Chapter 1",7],[3,"General",12],[7,"Chapter 1",8],[2,"Chapter 1",6],[5,"General",9],[9,"Chapter 2",1],[4,"Chapter 2",6],[9,"Chapter 2",2],[1,"Chapter 1",8],[0,"General",16],[10,"Chapter 3",5],[1,"Chapter 1",9]];const BASE_NV=V.length;let NV=BASE_NV;const BASE_SUBJ=SUBJ.length;
 const HUE=[200,260,25,150,45,120,330,290,5,175,225];const hue=s=>HUE[s]!==undefined?HUE[s]:(s*137)%360;
@@ -245,18 +245,11 @@ function SwipeNav({tabs,tab,go}){
   const tabsR=React.useRef(tabs);tabsR.current=tabs;
   const sup=React.useRef(0);
 
-  const updEdge=()=>{
-    const n=tr.current;if(!n)return;
-    n.classList.toggle('fade-l',n.scrollLeft>6);
-    n.classList.toggle('fade-r',n.scrollLeft+n.clientWidth<n.scrollWidth-6);
-  };
-
   const place=(smooth)=>{
     const n=tr.current,ind=indR.current;if(!n||!ind)return;
     const b=n.querySelector('button.on');if(!b)return;
     const x=b.offsetLeft,w=b.offsetWidth;
-    ind.style.width=w+'px';
-    ind.style.transform='translate3d('+x+'px,0,0)';
+    ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(w/100).toFixed(4)})`;
     ind.style.opacity='1';
     const targetScroll=x-(n.clientWidth-w)/2;
     if(smooth){
@@ -264,7 +257,6 @@ function SwipeNav({tabs,tab,go}){
     }else{
       n.scrollLeft=targetScroll;
     }
-    updEdge();
   };
 
   useEffect(()=>{place(true)},[tab]);
@@ -312,8 +304,7 @@ function SwipeNav({tabs,tab,go}){
     const start=e=>{
       const t=e.touches[0];
       sc={x:t.clientX,y:t.clientY,cx:t.clientX,on:false,moved:false,k:null,rect:null,metrics:null};
-      if(e.target.closest&&e.target.closest('button.on'))begin();
-      else sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
+      sc.hold=setTimeout(()=>{if(sc&&!sc.moved)begin()},210);
     };
 
     const renderFrame=()=>{
@@ -331,15 +322,14 @@ function SwipeNav({tabs,tab,go}){
       const last=metrics[metrics.length-1];
       const maxX=last.left+last.width-target.width;
       const x=Math.max(minX,Math.min(maxX,relX-target.width/2));
-      ind.style.width=target.width+'px';
-      ind.style.transform='translate3d('+x+'px,0,0)';
+      ind.style.transform=`translate3d(${x}px,0,0) scaleX(${(target.width/100).toFixed(4)})`;
       if(best!==sc.k){
         sc.k=best;
         peek(metrics,best);
         try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}
       }
-      if(cx-rect.left<44){n.scrollLeft-=6;updEdge()}
-      else if(rect.right-cx<44){n.scrollLeft+=6;updEdge()}
+      if(cx-rect.left<44){n.scrollLeft-=6}
+      else if(rect.right-cx<44){n.scrollLeft+=6}
     };
 
     const move=e=>{
@@ -347,7 +337,7 @@ function SwipeNav({tabs,tab,go}){
       const t=e.touches[0];
       sc.cx=t.clientX;
       if(!sc.on){
-        if(Math.abs(t.clientX-sc.x)>8||Math.abs(t.clientY-sc.y)>8){
+        if(Math.abs(t.clientX-sc.x)>7||Math.abs(t.clientY-sc.y)>7){
           sc.moved=true;
           clearTimeout(sc.hold);
         }
@@ -373,20 +363,11 @@ function SwipeNav({tabs,tab,go}){
       }
     };
 
-    let scrollRaf=0;
-    const onScroll=()=>{
-      if(!scrollRaf){
-        scrollRaf=requestAnimationFrame(()=>{scrollRaf=0;updEdge()});
-      }
-    };
-
-    n.addEventListener('scroll',onScroll,{passive:true});
     n.addEventListener('touchstart',start,{passive:true});
     n.addEventListener('touchmove',move,{passive:false});
     n.addEventListener('touchend',end,{passive:true});
     n.addEventListener('touchcancel',end,{passive:true});
     return()=>{
-      n.removeEventListener('scroll',onScroll);
       n.removeEventListener('touchstart',start);
       n.removeEventListener('touchmove',move);
       n.removeEventListener('touchend',end);
@@ -395,7 +376,7 @@ function SwipeNav({tabs,tab,go}){
   },[]);
 
   return h`<nav class="dock" ref=${navR} aria-label="Main navigation">
-    <div class="dock-track fade-r" ref=${tr} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
+    <div class="dock-track" ref=${tr} onClickCapture=${e=>{if(Date.now()-sup.current<350){e.stopPropagation();e.preventDefault()}}}>
       <span class="dock-ind" ref=${indR} aria-hidden="true" style=${{opacity:0}}/>
       ${tabs.map(([t,ic])=>h`<button key=${t} class=${tab===t?'on':''} aria-current=${tab===t?'page':undefined} onClick=${()=>go(t)}><b><${Icon} name=${ic} size=${21}/></b><span>${t}</span></button>`)}
     </div>
@@ -405,19 +386,22 @@ function SwipeNav({tabs,tab,go}){
 function App({user}){
  const[S,setS]=useState(()=>window.__SP_BOOT_STATE&&validate(window.__SP_BOOT_STATE)===''?window.__SP_BOOT_STATE:load());applyCustom(S);const[tab,setTab]=useState('Today');const[grade,setGrade]=useState(()=>{try{return localStorage.getItem('sp.grade')||'aurora'}catch(e){return 'aurora'}});const[intro,setIntro]=useState(()=>{try{if(sessionStorage.getItem('sp.intro'))return false;sessionStorage.setItem('sp.intro','1')}catch(e){}try{return !matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return true}});const[dark,setDark]=useState(()=>{try{return localStorage.getItem('sp.theme')}catch(e){return null}});
  const[msg,setMsg]=useState(null);const[celebrate,setCelebrate]=useState(false);
- const[showGlass,setShowGlass]=useState(false);const[closingGlass,setClosingGlass]=useState(false);const[popOrigin,setPopOrigin]=useState({x:'84%',y:'10%'});
+ const[showGlass,setShowGlass]=useState(false);const[closingGlass,setClosingGlass]=useState(false);
+ const[popDelta,setPopDelta]=useState({dx:'130px',dy:'-230px'});
  const[glassIntensity,setGlassIntensity]=useState(()=>{try{return Number(localStorage.getItem('sp.glassIntensity')??70)}catch(e){return 70}});const[soundOn,setSoundOn]=useState(()=>{try{return localStorage.getItem('sp.completionSound')!=='off'}catch(e){return true}});
  const[updateReady,setUpdateReady]=useState(false);const[checkingUpdate,setCheckingUpdate]=useState(false);const swRegRef=React.useRef(null);
  const audioRef=React.useRef(null);const undoAudioRef=React.useRef(null);const nd=lastDay(S);const rt=rawToday();const[day0,setDay]=useState(Math.min(Math.max(rt,0),nd-1));
  const ndRef=React.useRef(nd);ndRef.current=nd;const lastSeen=React.useRef(rawToday());
 
- /* ---------- macOS Window Open / Close Controller ---------- */
+ /* ---------- macOS Genie Window Open / Close Controller ---------- */
  const openGlassModal=(e)=>{
   if(e&&e.currentTarget){
    const r=e.currentTarget.getBoundingClientRect();
-   const px=Math.round(((r.left+r.width/2)/window.innerWidth)*100)+'%';
-   const py=Math.round(((r.top+r.height/2)/window.innerHeight)*100)+'%';
-   setPopOrigin({x:px,y:py});
+   const btnCenterX=r.left+r.width/2;
+   const btnCenterY=r.top+r.height/2;
+   const dx=Math.round(btnCenterX - window.innerWidth/2)+'px';
+   const dy=Math.round(btnCenterY - window.innerHeight/2)+'px';
+   setPopDelta({dx,dy});
   }
   setClosingGlass(false);
   setShowGlass(true);
@@ -426,7 +410,7 @@ function App({user}){
  const closeGlassModal=()=>{
   if(closingGlass)return;
   setClosingGlass(true);
-  setTimeout(()=>{setShowGlass(false);setClosingGlass(false)},210);
+  setTimeout(()=>{setShowGlass(false);setClosingGlass(false)},280);
  };
 
  /* ---------- In-App Update Engine (Auto Content Hash + Version Check) ---------- */
@@ -549,7 +533,7 @@ function App({user}){
  <${Hero} S=${S} rt=${rt} nd=${nd} done=${done} NV=${NV} P=${P} user=${user} dark=${dark} onTheme=${()=>setDark((dark||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark')} onStyle=${openGlassModal} onLogout=${()=>window.SPFirebase?.signOut()}/>
  
  ${showGlass&&h`<div class=${'macos-modal-backdrop'+(closingGlass?' is-closing':'')} onClick=${e=>{if(e.target===e.currentTarget)closeGlassModal()}}>
-  <div class="macos-window" role="dialog" aria-modal="true" aria-label="Style and Glass Settings" style=${{'--pop-x':popOrigin.x,'--pop-y':popOrigin.y}}>
+  <div class="macos-window" role="dialog" aria-modal="true" aria-label="Style and Glass Settings" style=${{'--from-x':popDelta.dx,'--from-y':popDelta.dy}}>
    <div class="macos-titlebar">
     <div class="macos-traffic">
      <button type="button" class="macos-dot close" aria-label="Close" onClick=${closeGlassModal}>×</button>
