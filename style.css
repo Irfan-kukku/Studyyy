@@ -35,12 +35,12 @@ main, .app-content, .main-content { min-width: 0; max-width: 100%; overflow-x: h
 /* ===== INTERACTIVE LIQUID GLASS + COMPLETION CELEBRATION ===== */
 :root{--glass-strength:.7;--glass-blur:22px;--glass-saturation:180%}
 .row{transition:transform .22s cubic-bezier(.2,.8,.2,1),background .25s ease,box-shadow .25s ease}
-.row:has(input[type=checkbox]:checked){animation:row-done .48s cubic-bezier(.2,.8,.2,1)}
+.row:has(.tick.pop){animation:row-done .48s cubic-bezier(.2,.8,.2,1)}
 .row input[type=checkbox]{transition:transform .2s cubic-bezier(.2,.8,.2,1),filter .2s ease}
 .row input[type=checkbox]:checked{animation:check-pop .42s cubic-bezier(.2,1.6,.4,1);filter:drop-shadow(0 0 5px rgba(67,190,126,.35))}
 @keyframes check-pop{0%{transform:scale(.65)}55%{transform:scale(1.35)}100%{transform:scale(1)}}
 @keyframes row-done{0%{transform:scale(.985)}55%{transform:scale(1.012)}100%{transform:scale(1)}}
-.completion-pop{position:fixed;z-index:10001;left:50%;top:42%;transform:translate(-50%,-50%);width:min(82vw,300px);padding:22px 18px 20px;border:1px solid rgba(255,255,255,.35);border-radius:26px;background:var(--glass-strong);color:var(--tx);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.45);-webkit-backdrop-filter:blur(34px) saturate(190%);backdrop-filter:blur(34px) saturate(190%);animation:celebrate-in .55s cubic-bezier(.16,1.4,.35,1) both}
+.completion-pop{will-change:transform,opacity;position:fixed;z-index:10001;left:50%;top:42%;transform:translate(-50%,-50%);width:min(82vw,300px);padding:22px 18px 20px;border:1px solid rgba(255,255,255,.35);border-radius:26px;background:var(--glass-strong);color:var(--tx);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.45);-webkit-backdrop-filter:blur(34px) saturate(190%);backdrop-filter:blur(34px) saturate(190%);animation:celebrate-in .55s cubic-bezier(.16,1.4,.35,1) both}
 .completion-pop b,.completion-pop span{display:block}.completion-pop span{font-size:13px;margin-top:5px;color:var(--mu)}
 .completion-burst{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(145deg,var(--ac),var(--ac2));color:var(--on-ac);font-size:30px;font-weight:800;box-shadow:0 7px 24px color-mix(in srgb,var(--ac) 40%,transparent);animation:burst-spin .7s ease-out both}
 @keyframes celebrate-in{0%{opacity:0;transform:translate(-50%,-42%) scale(.55)}70%{opacity:1;transform:translate(-50%,-52%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -142,7 +142,7 @@ h1,h2{letter-spacing:-.025em}h2{font-weight:720}
   box-shadow:0 8px 24px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.22)!important;
 }
 .video-row.today-video input[type=checkbox],.row input[type=checkbox]{accent-color:var(--ac)}
-.video-row.today-video:has(input[type=checkbox]:checked){opacity:.82}
+.video-row.today-video:has(.tick.on){opacity:.82}
 
 button,select,input,textarea{
   border-radius:14px;border:1px solid var(--glass-line);
@@ -739,3 +739,24 @@ nav.dock button:active{
   .hero,.hero-bg i,.hero-title em,.hchip.flame .ui-icon,.hero-next.live,.intro,.intro *,.sp-logo-halo,.sp-logo-orbit,.sp-logo-ripple,.sp-logo-medallion,.sp-logo-sheen,.macos-window,.macos-modal-backdrop{animation:none!important}
   .hero-ring{transition:none}
 }
+
+
+/* ===== ROUND TICK CHECKLIST ===== */
+.video-row{border-left:0;padding:13px 12px 13px 14px;gap:10px}
+.video-row .m{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.video-row .vt b{font-size:15.5px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.video-row .vtime{font-size:12.5px}
+.video-row .chip{margin-top:2px}
+.video-row select{font-size:12px;padding:5px 6px;border-radius:10px;max-width:104px;flex:none}
+.tick{position:relative;flex:none;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tick-svg{width:28px;height:28px;overflow:visible}
+.tk-ring{fill:transparent;stroke:color-mix(in srgb,var(--mu) 55%,transparent);stroke-width:1.8;transition:stroke .2s ease,fill .2s ease}
+.tk-check{fill:none;stroke:var(--ac);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .25s ease .05s}
+.tick.on .tk-ring{stroke:var(--ac);fill:color-mix(in srgb,var(--ac) 14%,transparent)}
+.tick.on .tk-check{stroke-dashoffset:0}
+.tick:active .tick-svg{transform:scale(.88)}.tick-svg{transition:transform .15s ease}
+.tick.pop .tick-svg{animation:check-pop .42s cubic-bezier(.2,1.6,.4,1)}
+.tick .sp{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--ac);opacity:0;pointer-events:none;animation:tick-spark .6s ease-out forwards}
+.tick .sp.s0{--a:0deg}.tick .sp.s1{--a:60deg}.tick .sp.s2{--a:120deg}.tick .sp.s3{--a:180deg}.tick .sp.s4{--a:240deg}.tick .sp.s5{--a:300deg}
+@keyframes tick-spark{0%{opacity:1;transform:rotate(var(--a)) translateY(-10px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(-21px) scale(.3)}}
+@media(prefers-reduced-motion:reduce){.tick .sp{display:none}.tick.pop .tick-svg{animation:none}}

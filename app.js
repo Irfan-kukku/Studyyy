@@ -157,6 +157,22 @@ function Hero({S,rt,nd,done,NV,P,user,dark,onTheme,onStyle,onLogout}){
   <div class=${'hero-next'+(nx&&nx.live?' live':'')}><${Icon} name="clock" size=${18}/>${nx?h`<div class="hn-t"><b>${nx.live?'Live now':'Next · '+SLOT[nx.k]}</b><span>${nm(nx.i)}</span></div><div class="hn-c">${nx.live?'ends in '+fmtIn(nx.en-now):'in '+fmtIn(nx.st-now)}</div>`:h`<div class="hn-t"><b>${rt<0?'Your plan starts 7 Nov':'All set for today'}</b><span>${rt<0?'Preview Day 1 below':'Nothing else scheduled'}</span></div>`}</div></header>`}
 
 
+/* ---------- Instant sound engine (Web Audio, preloaded) ---------- */
+const SFX=(()=>{const AC=window.AudioContext||window.webkitAudioContext;let ctx=null;const bufs={},loading={},pool={};
+ const ensure=()=>{if(!ctx&&AC){try{ctx=new AC({latencyHint:'interactive'})}catch(e){ctx=null}}return ctx};
+ const load=n=>{const c=ensure();if(!c||bufs[n]||loading[n])return;loading[n]=fetch(n).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>c.decodeAudioData(b,ok,no))).then(b=>{bufs[n]=b}).catch(()=>{loading[n]=null})};
+ const warm=()=>{try{const c=ensure();if(c&&c.state!=='running')c.resume()}catch(e){}load('completion.mp3');load('uncheck.mp3')};
+ ['touchstart','touchend','pointerdown','click','keydown'].forEach(ev=>window.addEventListener(ev,warm,{passive:true,capture:true}));
+ const play=n=>{try{const c=ctx;if(c&&bufs[n]){if(c.state!=='running')c.resume();const s=c.createBufferSource();s.buffer=bufs[n];s.connect(c.destination);s.start(0);return}}catch(e){}
+  try{const a=pool[n]||(pool[n]=new Audio(n));a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}};
+ return{play,warm}})();
+/* ---------- Round tick (checklist style) ---------- */
+function Tick({on,onToggle}){const[pop,setPop]=useState(false);const prev=React.useRef(on);
+ useEffect(()=>{if(on&&!prev.current){prev.current=on;setPop(true);const t=setTimeout(()=>setPop(false),750);return()=>clearTimeout(t)}prev.current=on;if(!on)setPop(false)},[on]);
+ return h`<button type="button" role="checkbox" aria-checked=${on} aria-label=${on?'Mark not started':'Mark completed'} class=${'tick'+(on?' on':'')+(pop?' pop':'')} onClick=${e=>{e.stopPropagation();onToggle(!on)}}>
+  <svg viewBox="0 0 28 28" class="tick-svg" aria-hidden="true"><circle class="tk-ring" cx="14" cy="14" r="11.5"/><path class="tk-check" d="M8.6 14.4l3.8 3.8 7-7.6"/></svg>
+  ${pop&&[0,1,2,3,4,5].map(k=>h`<i class=${'sp s'+k} key=${k}/>`)}</button>`}
+
 function VRow({S,i,act,time,today=false}){const ref=React.useRef(null);const g=React.useRef(null);const done=stat(S,i)==='Completed';
  const mv=(x,anim)=>{const n=ref.current;if(!n)return;n.style.transition=anim?'transform .4s cubic-bezier(.2,.9,.3,1.25)':'none';n.style.transform=x?'translateX('+x+'px)':'';if(n.parentNode)n.parentNode.style.setProperty('--sw',String(Math.min(1,x/96)))};
  const ts=e=>{if(e.target.closest&&e.target.closest('select,input,button'))return;const t=e.touches[0];g.current={x:t.clientX,y:t.clientY,on:false,dead:false,dx:0}};
@@ -167,8 +183,9 @@ function VRow({S,i,act,time,today=false}){const ref=React.useRef(null);const g=R
   if(s.dx*.8>=76){mv(0,true);try{navigator.vibrate&&navigator.vibrate([10,30,10])}catch(_){}act(op.set,i,done?'Not Started':'Completed')}else mv(0,true)};
  return h`<div class="swrap" style=${{'--sw':0}}><div class=${'swbg'+(done?' undo':'')} aria-hidden="true"><${Icon} name=${done?'moon':'check'} size=${20}/><span>${done?'Mark not started':'Release to complete'}</span></div>
  <div class=${'row video-row'+(today?' today-video':'')} ref=${ref} onTouchStart=${ts} onTouchMove=${tm} onTouchEnd=${te} onTouchCancel=${()=>{g.current=null;mv(0,true)}} style=${{'--c':col(V[i][0])}}>
- <input type="checkbox" checked=${done} onChange=${e=>act(op.set,i,e.target.checked?'Completed':'Not Started')}/>
- <div class="m"><${Chip} s=${V[i][0]}/><div><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu">${time}</div></div><${StSel} S=${S} i=${i} act=${act}/></div></div>`}
+ <div class="m"><div class="vt"><b>${V[i][1]} · Video ${V[i][2]}</b></div><div class="mu vtime">${time}</div><${Chip} s=${V[i][0]}/></div>
+ <${StSel} S=${S} i=${i} act=${act}/>
+ <${Tick} on=${done} onToggle=${v=>act(op.set,i,v?'Completed':'Not Started')}/></div></div>`}
 function Pick({S,onPick,pending}){const[s,setS]=useState(0);const[c,setC]=useState(0);const[v,setV]=useState(0);
  const chs=Object.keys(CH).filter(k=>k.split('|')[0]==s);const ids=CH[chs[Math.min(c,chs.length-1)]];
  useEffect(()=>onPick(ids[Math.min(v,ids.length-1)]),[s,c,v]);
@@ -512,7 +529,12 @@ function App({user}){
  useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.18+(glassIntensity/100)*.48));document.documentElement.style.setProperty('--glass-saturation',(125+glassIntensity*.8)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.24)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
  useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
- const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;const r=f(S,...a);if(r.err)toast(r.err,1);else{setS(r.S);toast(r.ok||'Saved');if(f===op.set&&before!==stat(r.S,a[0])){const after=stat(r.S,a[0]);if(after==='Completed'){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450);if(soundOn){try{if(!audioRef.current)audioRef.current=new Audio('completion.mp3');audioRef.current.currentTime=0;const play=audioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}else if(before==='Completed'&&after!=='Completed'&&soundOn){try{if(!undoAudioRef.current)undoAudioRef.current=new Audio('uncheck.mp3');undoAudioRef.current.currentTime=0;const play=undoAudioRef.current.play();if(play?.catch)play.catch(()=>{})}catch(e){}}}}return !r.err};
+ const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;const r=f(S,...a);if(r.err){toast(r.err,1);return false}
+  const after=f===op.set?stat(r.S,a[0]):null;const changed=f===op.set&&before!==after;
+  if(changed&&soundOn){if(after==='Completed')SFX.play('completion.mp3');else if(before==='Completed')SFX.play('uncheck.mp3')}
+  setS(r.S);toast(r.ok||'Saved');
+  if(changed&&after==='Completed'){setCelebrate(true);setTimeout(()=>setCelebrate(false),1450)}
+  return true};
  const all=[...Array(NV).keys()];const done=cnt(S,all);const P=pct(done,NV);
  const rev=all.filter(i=>stat(S,i)==='Revisit').length,mvd=all.filter(i=>stat(S,i)==='Moved').length;
  const pending=all.filter(i=>stat(S,i)!=='Completed'&&pos(S,i)>=0).sort((a,b)=>pos(S,a)-pos(S,b));
