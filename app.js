@@ -273,7 +273,7 @@ function SwipeNav({tabs,tab,go}){
   const goR=React.useRef(go);goR.current=go;
   const tabsR=React.useRef(tabs);tabsR.current=tabs;
   const sup=React.useRef(0);
-  const BASE_W=82;
+  const BASE_W=76;
 
   const place=(smooth)=>{
     const n=tr.current,ind=indR.current;if(!n||!ind)return;
