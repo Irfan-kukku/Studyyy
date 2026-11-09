@@ -8,3 +8,5 @@ window.playStudyIntro = function() {
       document.addEventListener('touchstart', enable);
       });
   };
+document.addEventListener('click', function() { window.playStudyIntro(); }, { once: true });
+document.addEventListener('touchstart', function() { window.playStudyIntro(); }, { once: true });
