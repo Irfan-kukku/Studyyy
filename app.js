@@ -687,7 +687,7 @@ function App({user}){
  ${intro&&h`<${Intro} onDone=${()=>setIntro(false)}/>`}</div>`}
 
 
-Object.keys(op
+
 /* --- NEW STUDY FEATURES (Soundscapes, Flashcards, Exam Countdown) --- */
 function FocusSoundscapes() {
   const [playing, setPlaying] = useState({ rain: false, white: false, binaural: false });
@@ -848,6 +848,5 @@ function ExamCountdownTracker() {
   </div>`;
 }
 
-).forEach(k=>{op[k]._spName=k});
 
 window.StudyPlannerApp=App;window.StudyPlannerInit=init;window.StudyPlannerLoad=load;
