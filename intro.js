@@ -1,5 +1,5 @@
 // Intro Audio Player for Study Planner
-wiwndow.playStudyIntro = function() {
+window.playStudyIntro = function() {
   if (!window._introAudio) { window._introAudio = new Audio('intro.mp3'); }
   window._introAudio.currentTime = 0;
   window._introAudio.play().catch(function(err) {
