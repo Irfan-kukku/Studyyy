@@ -687,6 +687,167 @@ function App({user}){
  ${intro&&h`<${Intro} onDone=${()=>setIntro(false)}/>`}</div>`}
 
 
-Object.keys(op).forEach(k=>{op[k]._spName=k});
+Object.keys(op
+/* --- NEW STUDY FEATURES (Soundscapes, Flashcards, Exam Countdown) --- */
+function FocusSoundscapes() {
+  const [playing, setPlaying] = useState({ rain: false, white: false, binaural: false });
+  const [volumes, setVolumes] = useState({ rain: 0.5, white: 0.3, binaural: 0.4 });
+  const audioCtxRef = React.useRef(null);
+  const nodesRef = React.useRef({});
+
+  const getAudioCtx = () => {
+    if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+    return audioCtxRef.current;
+  };
+
+  const toggleSound = (type) => {
+    const ctx = getAudioCtx();
+    const isPlaying = !playing[type];
+    setPlaying(prev => ({ ...prev, [type]: isPlaying }));
+
+    if (isPlaying) {
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = volumes[type];
+      gainNode.connect(ctx.destination);
+
+      if (type === 'white') {
+        const bufferSize = ctx.sampleRate * 2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        const whiteNoise = ctx.createBufferSource();
+        whiteNoise.buffer = buffer; whiteNoise.loop = true; whiteNoise.connect(gainNode); whiteNoise.start();
+        nodesRef.current.white = { source: whiteNoise, gain: gainNode };
+      } else if (type === 'rain') {
+        const bufferSize = ctx.sampleRate * 2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+        for (let i = 0; i < bufferSize; i++) {
+          let white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
+          output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11; b6 = white * 0.115926;
+        }
+        const pinkNoise = ctx.createBufferSource();
+        pinkNoise.buffer = buffer; pinkNoise.loop = true; pinkNoise.connect(gainNode); pinkNoise.start();
+        nodesRef.current.rain = { source: pinkNoise, gain: gainNode };
+      } else if (type === 'binaural') {
+        const oscL = ctx.createOscillator(), oscR = ctx.createOscillator(), merger = ctx.createChannelMerger(2);
+        oscL.frequency.value = 200; oscR.frequency.value = 210;
+        oscL.connect(merger, 0, 0); oscR.connect(merger, 0, 1); merger.connect(gainNode);
+        oscL.start(); oscR.start();
+        nodesRef.current.binaural = { oscL, oscR, gain: gainNode };
+      }
+    } else {
+      if (nodesRef.current[type]) {
+        if (nodesRef.current[type].source) nodesRef.current[type].source.stop();
+        if (nodesRef.current[type].oscL) { nodesRef.current[type].oscL.stop(); nodesRef.current[type].oscR.stop(); }
+        delete nodesRef.current[type];
+      }
+    }
+  };
+
+  const handleVol = (type, val) => {
+    setVolumes(prev => ({ ...prev, [type]: val }));
+    if (nodesRef.current[type] && nodesRef.current[type].gain) nodesRef.current[type].gain.gain.value = val;
+  };
+
+  return h`<div class="card mb-4 p-4" style="border-radius:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);">
+    <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:12px;">🎧 Ambient Focus Soundscapes Mixer (100% Offline Web Audio Synth)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+      ${['rain', 'white', 'binaural'].map(s => h`<div key=${s} style="background:rgba(255,255,255,0.06);padding:10px;border-radius:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="text-transform:capitalize;font-weight:500;">${s === 'rain' ? '🌧️ Rain' : s === 'white' ? '📻 White Noise' : '🧠 10Hz Binaural'}</span>
+          <button onClick=${() => toggleSound(s)} style="padding:4px 10px;border-radius:20px;border:none;background:${playing[s] ? '#10b981' : 'rgba(255,255,255,0.15)'};color:#fff;cursor:pointer;">
+            ${playing[s] ? 'Pause' : 'Play'}
+          </button>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value=${volumes[s]} onChange=${e => handleVol(s, parseFloat(e.target.value))} style="width:100%;accent-color:#10b981;" />
+      </div>`)}
+    </div>
+  </div>`;
+}
+
+function FlashcardDeck() {
+  const [cards, setCards] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('study_flashcards')) || [
+      { front: 'What is Active Recall?', back: 'Testing your memory during learning instead of passive reading.' },
+      { front: 'What is Spaced Repetition?', back: 'Reviewing information at increasing intervals for long-term retention.' }
+    ]; } catch(e) { return []; }
+  });
+  const [idx, setIdx] = useState(0); const [flipped, setFlipped] = useState(false);
+  const [newFront, setNewFront] = useState(''); const [newBack, setNewBack] = useState('');
+
+  const saveCards = (c) => { setCards(c); localStorage.setItem('study_flashcards', JSON.stringify(c)); };
+  const addCard = (e) => { e.preventDefault(); if (!newFront.trim() || !newBack.trim()) return; saveCards([...cards, { front: newFront, back: newBack }]); setNewFront(''); setNewBack(''); };
+  const curCard = cards[idx];
+
+  return h`<div class="card mb-4 p-4" style="border-radius:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);">
+    <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:12px;">🎴 Active Recall Flashcard Deck (${cards.length} cards)</h3>
+    ${cards.length > 0 ? h`<div>
+      <div onClick=${() => setFlipped(!flipped)} style="min-height:110px;background:rgba(255,255,255,0.08);border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.15);margin-bottom:12px;">
+        <div style="font-size:1.1rem;font-weight:500;">
+          ${flipped ? h`<span style="color:#10b981;">💡 ${curCard.back}</span>` : h`<span>❓ ${curCard.front}</span>`}
+          <div style="font-size:0.75rem;opacity:0.6;margin-top:8px;">(Click card to flip)</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <button onClick=${() => { setFlipped(false); setIdx((idx - 1 + cards.length) % cards.length); }} style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;">Prev</button>
+        <div style="display:flex;gap:8px;">
+          <button onClick=${() => { setFlipped(false); setIdx((idx + 1) % cards.length); }} style="padding:6px 14px;border-radius:8px;border:none;background:#ef4444;color:#fff;cursor:pointer;">Review Again</button>
+          <button onClick=${() => { setFlipped(false); setIdx((idx + 1) % cards.length); }} style="padding:6px 14px;border-radius:8px;border:none;background:#10b981;color:#fff;cursor:pointer;">Got it!</button>
+        </div>
+        <button onClick=${() => { setFlipped(false); setIdx((idx + 1) % cards.length); }} style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;">Next</button>
+      </div>
+    </div>` : h`<p style="opacity:0.7;">No flashcards yet. Add one below!</p>`}
+    <form onSubmit=${addCard} style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+      <input placeholder="Front (Question)" value=${newFront} onChange=${e => setNewFront(e.target.value)} style="flex:1;min-width:130px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+      <input placeholder="Back (Answer)" value=${newBack} onChange=${e => setNewBack(e.target.value)} style="flex:1;min-width:130px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+      <button type="submit" style="padding:8px 16px;border-radius:8px;border:none;background:#6366f1;color:#fff;cursor:pointer;">Add Card</button>
+    </form>
+  </div>`;
+}
+
+function ExamCountdownTracker() {
+  const [examDate, setExamDate] = useState(() => localStorage.getItem('study_exam_date') || '2026-12-31');
+  const [examName, setExamName] = useState(() => localStorage.getItem('study_exam_name') || 'Final Exam');
+  const [dailyGoal, setDailyGoal] = useState(() => localStorage.getItem('study_daily_goal') || '4');
+  const [todayHours, setTodayHours] = useState(() => localStorage.getItem('study_today_hours') || '2.5');
+
+  const diffDays = Math.max(0, Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60 * 24)));
+  const progressPct = Math.min(100, Math.round((parseFloat(todayHours) / (parseFloat(dailyGoal) || 1)) * 100));
+
+  const updateExam = (n, d) => { setExamName(n); setExamDate(d); localStorage.setItem('study_exam_name', n); localStorage.setItem('study_exam_date', d); };
+  const updateGoal = (g, h) => { setDailyGoal(g); setTodayHours(h); localStorage.setItem('study_daily_goal', g); localStorage.setItem('study_today_hours', h); };
+
+  return h`<div class="card mb-4 p-4" style="border-radius:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);">
+    <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:12px;">⏳ Exam Countdown & Daily Target Tracker</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
+      <div style="background:rgba(255,255,255,0.07);padding:14px;border-radius:12px;text-align:center;">
+        <div style="font-size:0.85rem;opacity:0.8;">Target Exam: <strong>${examName}</strong></div>
+        <div style="font-size:2rem;font-weight:700;color:#6366f1;margin:6px 0;">${diffDays} Days</div>
+        <div style="font-size:0.75rem;opacity:0.6;">Target Date: ${examDate}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.07);padding:14px;border-radius:12px;">
+        <div style="font-size:0.85rem;opacity:0.8;margin-bottom:6px;">Daily Study Hours Goal</div>
+        <div style="font-size:1.2rem;font-weight:600;">${todayHours} / ${dailyGoal} hrs (${progressPct}%)</div>
+        <div style="width:100%;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin:8px 0;">
+          <div style="width:${progressPct}%;height:100%;background:#10b981;transition:width 0.3s;"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input placeholder="Exam Name" value=${examName} onChange=${e => updateExam(e.target.value, examDate)} style="flex:1;min-width:120px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+      <input type="date" value=${examDate} onChange=${e => updateExam(examName, e.target.value)} style="padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+      <input type="number" step="0.5" placeholder="Daily Goal (hrs)" value=${dailyGoal} onChange=${e => updateGoal(e.target.value, todayHours)} style="width:100px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+      <input type="number" step="0.5" placeholder="Studied Today (hrs)" value=${todayHours} onChange=${e => updateGoal(dailyGoal, e.target.value)} style="width:110px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.2);color:#fff;" />
+    </div>
+  </div>`;
+}
+
+).forEach(k=>{op[k]._spName=k});
 
 window.StudyPlannerApp=App;window.StudyPlannerInit=init;window.StudyPlannerLoad=load;
