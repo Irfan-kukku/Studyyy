@@ -792,4 +792,10 @@ nav.dock button, .dock-track button { background: transparent !important; border
 .glass-modal, .glass-card, .macos-window { background: rgba(255, 255, 255, 0.05) !important; backdrop-filter: blur(32px) saturate(200%) !important; -webkit-backdrop-filter: blur(32px) saturate(200%) !important; }
 
 
+.dock-ind { display: none !important; opacity: 0 !important; visibility: hidden !important; background: transparent !important; border: none !important; box-shadow: none !important; }
+nav.dock button.on { color: #38bdf8 !important; transform: scale(1.08) !important; }
+nav.dock button.on svg { filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.75)) !important; stroke: #38bdf8 !important; }
+nav.dock { background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2) !important; backdrop-filter: blur(35px) saturate(200%) !important; -webkit-backdrop-filter: blur(35px) saturate(200%) !important; }
+:root[data-theme=light] nav.dock { background: rgba(255, 255, 255, 0.45) !important; border-color: rgba(0,0,0,0.06) !important; }
+nav.dock button { background: transparent !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; outline: none !important; }
 
