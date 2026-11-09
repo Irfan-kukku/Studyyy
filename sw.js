@@ -1,5 +1,5 @@
 /* Service Worker with In-App Update & Cache Busting Support */
-const CACHE_VERSION = 'studyyy-v2.5.3';
+const CACHE_VERSION = 'studyyy-v2.5.34';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
