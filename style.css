@@ -806,4 +806,152 @@ nav.dock { border-radius: 9999px !important; height: 58px !important; background
 :root[data-theme=light] nav.dock { background: rgba(255, 255, 255, 0.68) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; }
 nav.dock button.on { color: #38bdf8 !important; transform: scale(1.12) !important; }
 nav.dock button.on svg { stroke: #38bdf8 !important; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.75)) !important; }
-
+/* Motion Graphics Intro Overlay */
+.intro-motion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  pointer-events: none;
+}
+.intro-motion-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.intro-motion-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 11, 15, 0.78);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+}
+.intro-motion-card {
+  position: relative;
+  z-index: 2;
+  width: min(92vw, 440px);
+  padding: 28px 22px 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.32);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  text-align: center;
+  overflow: hidden;
+}
+.intro-motion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.intro-motion-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+.intro-motion-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.intro-motion-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+.intro-motion-visualizer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  margin-bottom: 24px;
+}
+.intro-motion-visualizer span {
+  width: 4px;
+  height: 8px;
+  background: linear-gradient(180deg, #38bdf8, #818cf8);
+  border-radius: 2px;
+  animation: introWave 0.8s ease-in-out infinite alternate;
+}
+.intro-motion-visualizer span:nth-child(2) { animation-delay: 0.1s; height: 16px; }
+.intro-motion-visualizer span:nth-child(3) { animation-delay: 0.2s; height: 24px; }
+.intro-motion-visualizer span:nth-child(4) { animation-delay: 0.3s; height: 12px; }
+.intro-motion-visualizer span:nth-child(5) { animation-delay: 0.4s; height: 28px; }
+.intro-motion-visualizer span:nth-child(6) { animation-delay: 0.25s; height: 18px; }
+.intro-motion-visualizer span:nth-child(7) { animation-delay: 0.15s; height: 22px; }
+.intro-motion-visualizer span:nth-child(8) { animation-delay: 0.35s; height: 10px; }
+@keyframes introWave {
+  0% { transform: scaleY(0.3); opacity: 0.4; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+.intro-motion-content {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.intro-motion-ml {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.45;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  margin-bottom: 8px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.intro-motion-ml.pulse-text {
+  animation: introTextPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes introTextPop {
+  0% { transform: scale(0.85); opacity: 0; filter: blur(4px); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+.intro-motion-ml.shake-text {
+  animation: introShake 0.18s ease-in-out infinite alternate, introTextPop 0.35s ease;
+  color: #f43f5e !important;
+  text-shadow: 0 0 24px rgba(244, 63, 94, 0.7) !important;
+}
+@keyframes introShake {
+  0% { transform: translate(-3px, -2px) rotate(-1deg); }
+  100% { transform: translate(3px, 2px) rotate(1deg); }
+}
+.intro-motion-en {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: -0.01em;
+}
+.intro-motion-progress-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.intro-motion-progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #f43f5e);
+  transition: width 0.1s linear;
+}
