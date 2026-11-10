@@ -15,15 +15,18 @@
   let overlayEl = null;
   let animFrameId = null;
 
-  function createOverlay() {
+  function createOverlay(options) {
     if (overlayEl) return overlayEl;
+    const isReset = options && options.isStreakReset;
+    const tagText = isReset ? `💔 STREAK BROKEN (${options.previousStreak || 1} DAYS LOST)` : '🔥 EXAM MOTIVATION';
+    const tagStyle = isReset ? 'background:rgba(244,63,94,0.18);border-color:rgba(244,63,94,0.5);color:#f43f5e;' : 'background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.28);color:#38bdf8;';
     overlayEl = document.createElement('div');
     overlayEl.className = 'intro-motion-overlay';
     overlayEl.innerHTML = 
       '<div class="intro-motion-backdrop"></div>' +
       '<div class="intro-motion-card">' +
         '<div class="intro-motion-header">' +
-          '<span class="intro-motion-tag">🔥 EXAM MOTIVATION</span>' +
+         '<span class="intro-mo'<span class="intro-motion-tag" style="' + tagStyle + '">' + tagText + '</span>' +tion-tag">🔥 EXAM MOTIVATION</span>' +
           '<button type="button" class="intro-motion-close" aria-label="Skip">✕ Skip</button>' +
         '</div>' +
         '<div class="intro-motion-visualizer">' +
@@ -104,8 +107,8 @@
     }
   }
 
-  window.playStudyIntro = function(manualTrigger) {
-    createOverlay();
+  window.playStudyIntro = function(options) {
+    createOverlay(options);
     void overlayEl.offsetWidth;
     overlayEl.classList.add('active');
 
@@ -133,11 +136,4 @@
     }
   };
 
-  const triggerAuto = function() {
-    window.playStudyIntro(false);
-    document.removeEventListener('click', triggerAuto);
-    document.removeEventListener('touchstart', triggerAuto);
-  };
-  document.addEventListener('click', triggerAuto, { once: true, passive: true });
-  document.addEventListener('touchstart', triggerAuto, { once: true, passive: true });
-})();
+  ();
