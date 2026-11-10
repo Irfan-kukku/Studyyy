@@ -850,3 +850,29 @@ function ExamCountdownTracker() {
 
 
 window.StudyPlannerApp=App;window.StudyPlannerInit=init;window.StudyPlannerLoad=load;
+// --- XYLEM COURSE VIDEO & STREAK ENGINE ---
+window.checkStudyStreak = function(S, setS) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const lastWatched = S.lastVideoWatchedDate;
+    const streak = S.currentStreak || 0;
+    const watchedRecently = (lastWatched === today || lastWatched === yesterday);
+    if (!watchedRecently && streak > 0 && S.lastStreakResetNotice !== today) {
+      if (setS) setS(prev => ({ ...prev, currentStreak: 0, lastStreakResetNotice: today }));
+      if (window.playStudyIntro) window.playStudyIntro({ isStreakReset: true, previousStreak: streak });
+    }
+  } catch(e) { console.error(e); }
+};
+
+window.markXylemVideoWatched = function(dayIndex, S, setS) {
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyWatched = (S.lastVideoWatchedDate === today);
+  const newStreak = alreadyWatched ? (S.currentStreak || 1) : ((S.currentStreak || 0) + 1);
+  if (setS) {
+    setS(prev => {
+      const days = (prev.days || []).map((d, i) => i === dayIndex ? { ...d, videoWatched: true, watchedAt: today } : d);
+      return { ...prev, days, lastVideoWatchedDate: today, currentStreak: newStreak };
+    });
+  }
+};
