@@ -572,7 +572,7 @@ function App({user}){
  useEffect(()=>{const mq=matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.theme=dark||(mq.matches?'dark':'light')};apply();try{dark?localStorage.setItem('sp.theme',dark):localStorage.removeItem('sp.theme')}catch(e){}if(mq.addEventListener)mq.addEventListener('change',apply);return()=>{if(mq.removeEventListener)mq.removeEventListener('change',apply)}},[dark]);
  useEffect(()=>{if(grade==='gold')delete document.documentElement.dataset.grade;else document.documentElement.dataset.grade=grade;try{localStorage.setItem('sp.grade',grade)}catch(e){}},[grade]);
  useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.18+(glassIntensity/100)*.48));document.documentElement.style.setProperty('--glass-saturation',(125+glassIntensity*.8)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.24)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
- useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
+ useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn])useEffect(()=>{if(window.checkStudyStreak)window.checkStudyStreak(S,setS);},[]);;
  const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
  const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;if(f===op.set&&W.includes(a[1])&&!earlierOK(S,a[0])){setGate(a[0]);return false}
   const r=f(S,...a);if(r.err){toast(r.err,1);return false}
@@ -639,7 +639,7 @@ function App({user}){
   i===null||i===undefined?h`<div class="row" key=${k}><div class="m mu">${SLOT[k]} · Free slot</div></div>`:h`<${VRow} key=${k} S=${S} i=${i} act=${act} today=${isToday} time=${SLOT[k]+' · Video slot '+(k+1)}/>`)}
  <div class="row" style=${{display:'block'}}><b>Catch-up · use the 9:15–11:00 PM extra slot if free</b>
  ${(S.cu||[]).filter(c=>c.day===day).map(c=>h`<div class="mu" key=${c.i}>✅ Watched: ${nm(c.i)}</div>`)}
- ${missedFor(day).length?h`<div class="mu" style=${{margin:'6px 0'}}>Missed earlier — watch one now:</div>${missedFor(day).slice(0,5).map(i=>h`<div key=${i} style=${{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginBottom:6}}><span><span class="chip" style=${{'--c':col(V[i][0])}}>${SUBJ[V[i][0]]}</span> ${V[i][1]} · V${V[i][2]}<span class="mu"> · ${stat(S,i)==='Revisit'?'Revisit':where(S,i).split(' · ')[0]}</span></span><button class="p" onClick=${()=>act(op.catchup,i,day)}>Watched</button></div>`)}`:h`<div class="mu" style=${{marginTop:4}}>Free — nothing missed.</div>`}</div></div></div>`}
+ ${missedFor(day).length?h`<div class="mu" style=${{margin:'6px 0'}}>Missed earlier — watch one now:</div>${missedFor(day).slice(0,5).map(i=>h`<div key=${i} style=${{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginBottom:6}}><span><span class="chip" style=${{'--c':col(V[i][0])}}>${SUBJ[V[i][0]]}</span> ${V[i][1]} · V${V[i][2]}<span class="mu"> · ${stat(S,i)==='Revisit'?'Revisit':where(S,i).split(' · ')[0]}</span></span><button class="p" onClick=${()=>act(op.catchup,i,day)}>Watched</button></div>`)}`:h`<div class="mu" style=${{marginTop:4}}>Free — nothing missed.</div>`}</div></div></d<${XylemVideoWidget} dayIndex=${day} S=${S} setS=${setS}/>iv>`}
 
  ${tab==='Progress'&&h`<div class="card"><h2>Subjects</h2>${SUBJ.map((s,k)=>{const ids=all.filter(i=>V[i][0]===k);return h`<${Bar} key=${k} label=${s+' ('+cnt(S,ids)+'/'+ids.length+')'} p=${pct(cnt(S,ids),ids.length)} c=${col(k)}/>`})}</div>
  <div class="card"><h2>Chapters</h2>${Object.keys(CH).map(k=>{const[s,c]=k.split('|');return h`<${Bar} key=${k} label=${SUBJ[s]+' – '+c+' ('+cnt(S,CH[k])+'/'+CH[k].length+')'} p=${pct(cnt(S,CH[k]),CH[k].length)} c=${col(s)}/>`})}</div>`}
@@ -848,6 +848,29 @@ function ExamCountdownTracker() {
   </div>`;
 }
 
+
+function XylemVideoWidget({dayIndex,S,setS}){
+  const todayStr=new Date().toISOString().slice(0,10);
+  const isWatchedToday=S.lastVideoWatchedDate===todayStr;
+  const dayData=(S.days&&S.days[dayIndex])||{};
+  const base='https://www.'+'xylem.live/batches/';
+  const batchUrl=base+'6a5ca6cf676ee94eee2ae280/batch-overview?came_from=study&activeSection=All%20classes';
+  const defaultLec=base+'various-lgs-batch-2-0-185357/subjects/chemistry-558656/subject-details/all/batch-video-player/new?scheduleId=6a92ae8c13b686fd7fbd52cf&dRoom=6a5ca6cf006ce2e8c5bdda33&batchSubjectId=6a5de61d5b51d64772349cac&vType=BATCHES&parentId=6a5ca6cf676ee94eee2ae280&childId=6a92ae8c13b686fd7fbd52cf';
+  const savedUrl=dayData.videoUrl||defaultLec;
+  const saveUrl=(v)=>setS(prev=>({...prev,days:(prev.days||[]).map((d,i)=>i===dayIndex?{...d,videoUrl:v}:d)}));
+  return h`<div class="card" style=${{marginTop:12,padding:'14px 16px',display:'flex',flexDirection:'column',gap:10}}>
+    <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+      <span style=${{fontSize:13,fontWeight:700,color:'#38bdf8'}}>🎥 Xylem · Various LGS 2.0</span>
+      <span style=${{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:9999,background:isWatchedToday?'rgba(34,197,94,0.16)':'rgba(244,63,94,0.16)',color:isWatchedToday?'#22c55e':'#f43f5e'}}>${isWatchedToday?`✓ Watched · 🔥 ${S.currentStreak||1}d`:`⏳ Pending · 🔥 ${S.currentStreak||0}d`}</span>
+    </div>
+    <div style=${{display:'flex',gap:8,flexWrap:'wrap'}}>
+      <a href=${batchUrl} target="_blank" rel="noopener noreferrer" style=${{flex:1,minWidth:110,textAlign:'center',padding:'9px 10px',borderRadius:12,background:'rgba(255,255,255,0.08)',color:'#fff',textDecoration:'none',fontSize:12,fontWeight:600}}>📚 All Classes</a>
+      <a href=${savedUrl} target="_blank" rel="noopener noreferrer" style=${{flex:1,minWidth:110,textAlign:'center',padding:'9px 10px',borderRadius:12,background:'#0284c7',color:'#fff',textDecoration:'none',fontSize:12,fontWeight:600}}>▶ Open Lecture</a>
+      <button type="button" onClick=${()=>window.markXylemVideoWatched&&window.markXylemVideoWatched(dayIndex,S,setS)} style=${{flex:1,minWidth:110,padding:'9px 10px',borderRadius:12,border:0,background:isWatchedToday?'rgba(34,197,94,0.25)':'#22c55e',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer'}}>${isWatchedToday?'✓ Watched':'Mark Watched'}</button>
+    </div>
+    <input type="url" placeholder="Paste today's Xylem lecture URL..." value=${dayData.videoUrl||''} onInput=${e=>saveUrl(e.target.value)} style=${{width:'100%',boxSizing:'border-box',padding:'8px 10px',borderRadius:10,border:'1px solid rgba(255,255,255,0.12)',background:'rgba(0,0,0,0.2)',color:'#fff',fontSize:11}}/>
+  </div>`;
+}
 
 window.StudyPlannerApp=App;window.StudyPlannerInit=init;window.StudyPlannerLoad=load;
 // --- XYLEM COURSE VIDEO & STREAK ENGINE ---
