@@ -573,7 +573,7 @@ function App({user}){
  useEffect(()=>{if(grade==='gold')delete document.documentElement.dataset.grade;else document.documentElement.dataset.grade=grade;try{localStorage.setItem('sp.grade',grade)}catch(e){}},[grade]);
  useEffect(()=>{document.documentElement.style.setProperty('--glass-strength',String(glassIntensity/100));document.documentElement.style.setProperty('--glass-alpha',String(.18+(glassIntensity/100)*.48));document.documentElement.style.setProperty('--glass-saturation',(125+glassIntensity*.8)+'%');document.documentElement.style.setProperty('--glass-blur',(8+glassIntensity*.24)+'px');try{localStorage.setItem('sp.glassIntensity',String(glassIntensity))}catch(e){}},[glassIntensity]);
  useEffect(()=>{try{localStorage.setItem('sp.completionSound',soundOn?'on':'off')}catch(e){}},[soundOn]);
-usEffect(()=>{if(window.checkStudyStreak)window.checkStudyStreak(S,setS);},[]);;
+useEffect(()=>{if(window.checkStudyStreak)window.checkStudyStreak(S,setS);},[]);;
 const tmr=React.useRef(0);const toast=(m,e)=>{setMsg({m,e});clearTimeout(tmr.current);tmr.current=setTimeout(()=>setMsg(null),2600)};
  const act=(f,...a)=>{const before=f===op.set?stat(S,a[0]):null;if(f===op.set&&W.includes(a[1])&&!earlierOK(S,a[0])){setGate(a[0]);return false}
   const r=f(S,...a);if(r.err){toast(r.err,1);return false}
